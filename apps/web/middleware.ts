@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { apiMe, AUTH_COOKIE_NAME } from "@/lib/auth-client";
 import type { PlatformRole } from "@/lib/types";
 
 function requiredRoleFromPath(pathname: string): PlatformRole | null {
@@ -24,12 +25,13 @@ export async function middleware(request: NextRequest) {
   const required = requiredRoleFromPath(pathname);
   if (!required) return NextResponse.next();
 
-  const meUrl = new URL("/api/auth/me", request.url);
-  const meRes = await fetch(meUrl, {
-    headers: { cookie: request.headers.get("cookie") ?? "" },
-    cache: "no-store",
-  });
-  const me = (await meRes.json()) as { user: { role: PlatformRole } | null };
+  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value ?? null;
+  let me: { user: { role: PlatformRole } | null };
+  try {
+    me = await apiMe(token);
+  } catch {
+    me = { user: null };
+  }
 
   if (!me.user) {
     const url = new URL(`/login?role=${required}`, request.url);
