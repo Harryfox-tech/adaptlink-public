@@ -1,0 +1,14 @@
+.git
+.github
+**/.next
+**/node_modules
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.env
+**/.env.local
+**/next-dev.*.log
+pic
+前端风格参照图
+*.md
+!apps/api/requirements.txt

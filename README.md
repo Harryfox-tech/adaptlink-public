@@ -4,6 +4,12 @@
 - `apps/web`: Next.js + TypeScript + Tailwind + Vercel AI SDK 前端
 - `apps/api`: FastAPI 后端（多智能体评估工作流占位）
 
+## 国内部署（Sealos，前后端容器）
+
+详见 **[DEPLOYMENT_SEALOS.md](./DEPLOYMENT_SEALOS.md)**（含免费额度说明、逐步截图级操作、环境变量与验收清单）。
+
+本地可先：`copy .env.sealos.example .env` → `docker compose up --build`。
+
 ## 快速启动
 1. 前端
 ```bash
