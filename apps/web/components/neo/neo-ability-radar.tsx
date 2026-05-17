@@ -15,8 +15,13 @@ export function NeoAbilityRadar({
   data: RadarDatum[];
   className?: string;
 }) {
+  const [mounted, setMounted] = React.useState(false);
   const gid = React.useId().replace(/:/g, "");
   const fillId = `neoRadarFill-${gid}`;
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className={cn("h-[240px] w-full", className)}>
@@ -25,6 +30,9 @@ export function NeoAbilityRadar({
         <div className="h-[1px] flex-1 bg-gradient-to-r from-white/0 via-white/10 to-white/0" />
       </div>
       <div className="h-[210px] w-full">
+        {!mounted ? (
+          <div className="h-full w-full animate-pulse rounded-xl bg-white/5" aria-hidden />
+        ) : (
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="72%" data={data}>
             <defs>
@@ -47,6 +55,7 @@ export function NeoAbilityRadar({
             />
           </RadarChart>
         </ResponsiveContainer>
+        )}
       </div>
     </div>
   );
