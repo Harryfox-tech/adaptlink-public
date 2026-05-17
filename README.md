@@ -4,9 +4,12 @@
 - `apps/web`: Next.js + TypeScript + Tailwind + Vercel AI SDK 前端
 - `apps/api`: FastAPI 后端（多智能体评估工作流占位）
 
-## 国内部署（Sealos，前后端容器）
+## 国内部署（Sealos + GitHub Actions）
 
-详见 **[DEPLOYMENT_SEALOS.md](./DEPLOYMENT_SEALOS.md)**（含免费额度说明、逐步截图级操作、环境变量与验收清单）。
+**按这个做即可：** **[SEALOS_操作清单.md](./SEALOS_操作清单.md)**（你要做的步骤清单）。
+
+- 代码在 GitHub → Actions 自动构建镜像到 `ghcr.io` → Sealos 填镜像名运行  
+- 详细说明：[DEPLOYMENT_SEALOS.md](./DEPLOYMENT_SEALOS.md)
 
 本地可先：`copy .env.sealos.example .env` → `docker compose up --build`。
 

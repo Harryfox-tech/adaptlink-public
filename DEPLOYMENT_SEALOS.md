@@ -2,6 +2,9 @@
 
 本教程将 **AdaptLink** 从 Vercel + Railway 迁移到 **[Sealos 公有云](https://cloud.sealos.io)**：前后端各一个容器，国内访问稳定，新用户通常有免费配额（以控制台为准）。
 
+> **快速上手**：直接看 **[SEALOS_操作清单.md](./SEALOS_操作清单.md)**（只列你要点的步骤）。  
+> **推荐流程**：GitHub 继续存代码 → **GitHub Actions** 自动 `docker build` 推到 **ghcr.io** → Sealos「应用部署」里填镜像名（不是选 GitHub）。
+
 ---
 
 ## 一、部署架构
@@ -37,6 +40,23 @@
 | `docker-compose.yml` | 本地一键起双容器 |
 | `.env.sealos.example` | 环境变量清单模板 |
 | `.dockerignore` | 加速镜像构建 |
+| `.github/workflows/docker-publish.yml` | push `main` 自动构建并推送 ghcr.io |
+| `scripts/sealos-build-push.ps1` | 本机手动构建推送（可选） |
+| `SEALOS_操作清单.md` | **你要做的步骤清单** |
+
+---
+
+## 三-B、推荐：GitHub Actions 自动构建（不用本机 Docker）
+
+1. 把本仓库 **push 到 GitHub** `main` 分支  
+2. 打开仓库 **Actions** → 工作流 **Publish Docker images (Sealos)** 跑绿  
+3. GitHub 用户名旁 **Packages** 里把 `adaptlink-api`、`adaptlink-web` 设为 **Public**  
+4. Sealos 镜像名填：
+   - `ghcr.io/你的用户名小写/adaptlink-api:latest`
+   - `ghcr.io/你的用户名小写/adaptlink-web:latest`  
+
+前端 API 地址：在 GitHub **Settings → Secrets and variables → Actions → Variables** 添加  
+`NEXT_PUBLIC_API_BASE_URL`（部署完 API 后填写），再 **重新运行** workflow。
 
 ---
 
@@ -75,104 +95,103 @@ docker compose up --build
 
 ## 四、Sealos 控制台部署（逐步操作）
 
+> **重要：和你截图一致**  
+> Sealos「应用部署 / 应用管理」页面只有 **镜像名（Image Name）** 输入框（默认 `nginx`），**没有「选 GitHub 仓库」**。  
+> 需要先在本地（或 CI）把代码 **build 成 Docker 镜像并推到镜像仓库**，再在 Sealos 里填镜像名。下面按这个真实流程写。
+
 ### 步骤 0：注册并进入
 
 1. 打开 https://cloud.sealos.io 注册 / 登录  
-2. 进入控制台，确认账户有可用**余额/免费额度**  
-3. 左侧找到 **「应用管理」** 或 **「App Launchpad」**（名称可能随版本略有不同）
+2. 进入控制台 → **应用管理**（你截图里的「应用部署」页面）  
+3. 确认账户有可用**余额/免费额度**
 
-以下在 **同一命名空间（Namespace）** 里创建 **两个应用**。
+### 步骤 0.5：本地构建并推送镜像（必做）
 
----
+在仓库根目录 `adaptlink-master` 打开终端（已安装 [Docker Desktop](https://www.docker.com/products/docker-desktop/)）。
 
-### 步骤 1：部署后端 `adaptlink-api`
+**0）登录镜像仓库（任选其一）**
 
-1. 点击 **「新建应用」** / **「Create App」**  
-2. **应用名称**：`adaptlink-api`  
-3. **部署方式**：选择 **从 Git 仓库构建**（或 GitHub 源码部署）  
-4. 授权并选择仓库：
-   - 仓库：`Harryfox-tech/adaptlink`
-   - 分支：`main`
-5. **构建配置**（务必与下表一致）：
+- [Docker Hub](https://hub.docker.com/)（免费，国际）  
+- 或 [阿里云容器镜像服务 ACR](https://cr.console.aliyun.com/)（国内推镜像更快）
 
-   | 项 | 值 |
-   |---|-----|
-   | 构建上下文 / Root | `.`（仓库根目录） |
-   | Dockerfile 路径 | `apps/api/Dockerfile` |
-   | 容器端口 | `8080` |
+下面用 Docker Hub 举例，用户名替换为你的：`你的用户名`
 
-6. **资源**（试用建议）：
-   - CPU：0.5～1 核  
-   - 内存：512MB～1GB  
-   - 副本数：1  
+```powershell
+docker login
+```
 
-7. **环境变量**（Environment）：
+**1）构建并推送后端**
 
-   | 变量名 | 示例值 | 必填 |
-   |--------|--------|------|
-   | `DATABASE_URL` | `postgresql://...` | 是（生产） |
-   | `AI_PROVIDER` | `mock` | 建议先 mock |
-   | `TRIAL_DEVELOPER_KEY` | `psq12345` | 是（高校/企业门禁） |
-   | `OPENAI_API_KEY` | （空） | 否 |
-   | `OPENAI_BASE_URL` | `https://api.deepseek.com/v1` | 否 |
-   | `OPENAI_MODEL` | `deepseek-chat` | 否 |
+```powershell
+cd "你的路径\adaptlink-master"
+docker build -f apps/api/Dockerfile -t 你的用户名/adaptlink-api:latest .
+docker push 你的用户名/adaptlink-api:latest
+```
 
-8. **网络**：
-   - 开启 **公网访问** / **Ingress**  
-   - 记下系统自动分配的域名，例如：  
-     `https://adaptlink-api-xxxx.cloud.sealos.io`
+**2）构建并推送前端**
 
-9. **健康检查**（若有配置项）：
-   - 路径：`/health`  
-   - 端口：`8080`  
+先把 API 地址想好。若 API 尚未部署，可先用占位，部署完 API 后再改地址 **重新 build + push 一次 web**：
 
-10. 保存并等待构建、运行变为 **Running**
-
-11. 浏览器访问：`https://你的-api-域名/health`  
-    应返回：`{"status":"ok",...}`
-
-**记下 API 根地址**（不要漏 `/api/v1` 后缀）：
-
-```text
-NEXT_PUBLIC_API_BASE_URL = https://你的-api-域名/api/v1
+```powershell
+docker build -f apps/web/Dockerfile `
+  --build-arg NEXT_PUBLIC_API_BASE_URL=https://你的-api-域名/api/v1 `
+  -t 你的用户名/adaptlink-web:latest .
+docker push 你的用户名/adaptlink-web:latest
 ```
 
 ---
 
-### 步骤 2：部署前端 `adaptlink-web`
+### 步骤 1：在 Sealos 部署后端 `adaptlink-api`（对应你的截图）
 
-1. 再次 **新建应用**  
-2. **应用名称**：`adaptlink-web`  
-3. 同一 Git 仓库、分支 `main`  
-4. **构建配置**：
+1. **应用管理** → **新建应用**  
+2. 按你截图中的表单项填写：
 
-   | 项 | 值 |
-   |---|-----|
-   | 构建上下文 | `.` |
-   | Dockerfile 路径 | `apps/web/Dockerfile` |
-   | 容器端口 | `3000` |
+   | 表单项 | 填什么 |
+   |--------|--------|
+   | **名称 Name** | `adaptlink-api` |
+   | **镜像名 Image Name** | `你的用户名/adaptlink-api:latest`（Public 保持开启） |
+   | **部署模式** | 固定，副本 **1** |
+   | **CPU / 内存** | 建议 CPU **0.5**、内存 **512M～1G**（256M 可能偏紧） |
+   | **容器端口** | **8080** |
+   | **开启外网访问** | **打开**（你截图里是关的，必须开才有公网域名） |
 
-5. **构建参数（Build Args）** — 关键：
+3. 展开 **高级配置** → **环境变量**：
 
-   | 构建参数名 | 值 |
-   |------------|-----|
-   | `NEXT_PUBLIC_API_BASE_URL` | `https://你的-api-域名/api/v1`（步骤 1 中的地址） |
+   | 变量名 | 值 |
+   |--------|-----|
+   | `DATABASE_URL` | 你的 PostgreSQL 连接串 |
+   | `AI_PROVIDER` | `mock` |
+   | `TRIAL_DEVELOPER_KEY` | `psq12345` |
 
-   > Next.js 在**构建时**把该变量打进前端包，API 域名变更后需 **重新构建 Web 应用**。
+4. 右上角 **部署 Deploy**  
+5. 等状态 **running** → 打开 **公网地址** → 访问 `/health` 应返回 ok  
+6. 记下 API 域名，例如：`https://adaptlink-api-xxxx.cloud.sealos.io`
 
-6. **运行时环境变量**（可选，供 `/api/chat` 等）：
+---
 
-   | 变量名 | 说明 |
-   |--------|------|
-   | `OPENAI_API_KEY` | 学生端 AI 助手 |
-   | `OPENAI_BASE_URL` | 如 DeepSeek |
-   | `OPENAI_MODEL` | 如 `deepseek-chat` |
+### 步骤 2：在 Sealos 部署前端 `adaptlink-web`
 
-7. **资源**：CPU 1 核、内存 1GB 起（Next 构建较吃内存；若构建失败可调大）  
-8. 开启 **公网访问**，得到 Web 域名，例如：  
-   `https://adaptlink-web-xxxx.cloud.sealos.io`
+若步骤 0.5 里前端构建时 API 地址还是占位，请用真实 API 地址 **重新 build + push web 镜像**，再在 Sealos 里 **更新镜像** 或删应用重建。
 
-9. 等待 Running 后，浏览器打开 Web 域名 → 应看到登录页
+1. 再 **新建应用**  
+2. 填写：
+
+   | 表单项 | 填什么 |
+   |--------|--------|
+   | **名称** | `adaptlink-web` |
+   | **镜像名** | `你的用户名/adaptlink-web:latest` |
+   | **容器端口** | **3000** |
+   | **开启外网访问** | **打开** |
+   | **CPU / 内存** | 建议 CPU **1**、内存 **1G** |
+
+3. （可选）环境变量：`OPENAI_API_KEY` 等（供 `/api/chat`）  
+4. **部署** → 打开 Web 公网地址 → 应看到登录页  
+
+**API 地址（给前端构建用）**：
+
+```text
+NEXT_PUBLIC_API_BASE_URL = https://你的-api-域名/api/v1
+```
 
 ---
 
