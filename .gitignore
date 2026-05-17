@@ -1,0 +1,19 @@
+﻿# Node
+node_modules
+npm-debug.log*
+
+# Next
+.next
+out
+
+# Python
+__pycache__
+*.pyc
+.venv
+
+# Env
+.env
+.env.local
+
+# Prisma
+apps/web/prisma/migrations

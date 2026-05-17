@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  ENTERPRISE
+  SCHOOL
+  ADMIN
+}
+
+enum SimulationType {
+  GROWTH
+  JOB
+}
+
+enum ApplicationStatus {
+  SAVED
+  APPLIED
+  INTERVIEWING
+  OFFER
+  REJECTED
+}
+
+model User {
+  id               String              @id @default(cuid())
+  email            String              @unique
+  passwordHash     String
+  role             UserRole
+  displayName      String
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  studentProfile   StudentProfile?
+  companyMembers   Company[]           @relation("CompanyOwner")
+  schoolMembers    School[]            @relation("SchoolOwner")
+  simulationSessions SimulationSession[]
+  applications     Application[]
+  abilitySnapshots AbilitySnapshot[]
+}
+
+model StudentProfile {
+  id               String             @id @default(cuid())
+  userId           String             @unique
+  schoolId         String?
+  major            String
+  grade            String
+  bio              String?
+  skills           String[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school           School?            @relation(fields: [schoolId], references: [id])
+  simulationSessions SimulationSession[]
+  recommendations  JobRecommendation[]
+}
+
+model Company {
+  id               String             @id @default(cuid())
+  ownerUserId      String
+  name             String
+  industry         String
+  size             String
+  description      String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  owner            User               @relation("CompanyOwner", fields: [ownerUserId], references: [id])
+  jobs             Job[]
+}
+
+model School {
+  id               String             @id @default(cuid())
+  ownerUserId      String
+  name             String
+  province         String
+  city             String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  owner            User               @relation("SchoolOwner", fields: [ownerUserId], references: [id])
+  students         StudentProfile[]
+}
+
+model Job {
+  id               String             @id @default(cuid())
+  companyId        String
+  title            String
+  location         String
+  description      String
+  requirements     String[]
+  tags             String[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  company          Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  recommendations  JobRecommendation[]
+  applications     Application[]
+}
+
+model SimulationSession {
+  id               String             @id @default(cuid())
+  userId           String
+  studentProfileId String?
+  simulationType   SimulationType
+  scene            String
+  targetJob        String?
+  status           String             @default("completed")
+  overallScore     Float?
+  aggregateSummary String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studentProfile   StudentProfile?    @relation(fields: [studentProfileId], references: [id])
+  messages         SimulationMessage[]
+  agentReviews     AgentReview[]
+}
+
+model SimulationMessage {
+  id               String             @id @default(cuid())
+  sessionId        String
+  role             String
+  content          String
+  createdAt        DateTime           @default(now())
+  session          SimulationSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model AgentReview {
+  id               String             @id @default(cuid())
+  sessionId        String
+  agentName        String
+  score            Float
+  summary          String
+  highlights       String[]
+  createdAt        DateTime           @default(now())
+  session          SimulationSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model AbilitySnapshot {
+  id               String             @id @default(cuid())
+  userId           String
+  sourceSessionId  String?
+  abilityKey       String
+  abilityLabel     String
+  score            Float
+  trend            String             @default("flat")
+  createdAt        DateTime           @default(now())
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model JobRecommendation {
+  id               String             @id @default(cuid())
+  studentProfileId String
+  jobId            String
+  sourceSessionId  String?
+  matchScore       Float
+  reasons          String[]
+  createdAt        DateTime           @default(now())
+  studentProfile   StudentProfile     @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  job              Job                @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model Application {
+  id               String             @id @default(cuid())
+  userId           String
+  jobId            String
+  status           ApplicationStatus  @default(APPLIED)
+  notes            String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job              Job                @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}

@@ -1,0 +1,44 @@
+
+> @platform/web@0.1.0 dev
+> next dev -p 3000
+
+   ▲ Next.js 15.0.7
+   - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.9s
+ ✓ Compiled /middleware in 184ms (136 modules)
+ ○ Compiling /api/auth/me ...
+ ✓ Compiled /api/auth/me in 1098ms (372 modules)
+ GET /api/auth/me 200 in 1235ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1681ms (737 modules)
+ GET /login?role=student&next=%2Fstudent%2Fsimulators%2Fgrowth 200 in 1817ms
+ ✓ Compiled /api/auth/login in 482ms (712 modules)
+ POST /api/auth/login 400 in 544ms
+ GET /login?role=student&next=%2Fstudent%2Fsimulators%2Fgrowth 200 in 80ms
+ ✓ Compiled /register in 160ms (705 modules)
+ GET /register?role=student 200 in 206ms
+ ✓ Compiled /api/auth/register in 116ms (707 modules)
+ POST /api/auth/register 200 in 173ms
+ GET /login?role=student&email=fanrenzhixue%40outlook.com 200 in 22ms
+ GET /login?role=student&email=fanrenzhixue%40outlook.com 200 in 8ms
+ POST /api/auth/login 200 in 31ms
+ GET /api/auth/me 200 in 13ms
+ ○ Compiling /student/dashboard ...
+ ✓ Compiled /student/dashboard in 2.1s (2622 modules)
+ GET /student/dashboard 200 in 2320ms
+ GET /api/auth/me 200 in 21ms
+ GET /student/dashboard 200 in 20ms
+ GET /api/auth/me 200 in 20ms
+ GET /api/auth/me 200 in 30ms
+ GET /api/auth/me 200 in 32ms
+ GET /api/auth/me 200 in 35ms
+ GET /api/auth/me 200 in 9ms
+ ○ Compiling /student/simulators/growth ...
+ ✓ Compiled /student/simulators/growth in 851ms (2678 modules)
+ GET /student/simulators/growth 200 in 923ms
+ ✓ Compiled / in 429ms (2689 modules)
+ GET / 307 in 534ms
+ GET /login 200 in 30ms
+[?25h

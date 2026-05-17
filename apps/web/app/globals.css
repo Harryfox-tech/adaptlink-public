@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Sci-Fi Glass 全站主题变量（仅影响样式，不影响任何逻辑） */
+  --background: 222 47% 7%; /* ~ slate-950 */
+  --foreground: 210 40% 98%;
+  --card: 222 47% 11%;
+  --card-foreground: 210 40% 98%;
+  --primary: 187 92% 69%; /* ~ cyan-300 */
+  --primary-foreground: 222 47% 7%;
+  --muted: 222 47% 14%;
+  --muted-foreground: 215 20% 72%;
+  --border: 215 25% 16%;
+  --ring: 187 92% 69%;
+  --accent: 222 47% 14%;
+  --accent-foreground: 210 40% 98%;
+}
+
+* {
+  @apply border-border;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+  background-image: radial-gradient(1200px circle at 30% 20%, rgba(45, 212, 191, 0.10), transparent 55%),
+    radial-gradient(900px circle at 75% 15%, rgba(168, 85, 247, 0.12), transparent 55%),
+    radial-gradient(900px circle at 60% 85%, rgba(59, 130, 246, 0.12), transparent 55%);
+  font-family: var(--font-inter), "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* 全息面板：极细扫描栅格（静态，低开销） */
+.quantum-scanline {
+  position: relative;
+}
+
+.quantum-scanline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent,
+    transparent 3px,
+    rgba(255, 255, 255, 0.02) 3px,
+    rgba(255, 255, 255, 0.02) 4px
+  );
+  pointer-events: none;
+}
+
+/* 剧情对话微弱 glitch（低频率，避免性能问题） */
+@keyframes quantum-glitch {
+  0%,
+  94%,
+  100% {
+    text-shadow: none;
+    transform: translate(0);
+  }
+
+  95% {
+    text-shadow: 0.4px 0 0 rgba(34, 211, 238, 0.35), -0.4px 0 0 rgba(244, 63, 94, 0.25);
+  }
+
+  96% {
+    text-shadow: -0.3px 0 0 rgba(34, 211, 238, 0.3);
+  }
+}
+
+.quantum-glitch-text {
+  animation: quantum-glitch 5s ease-in-out infinite;
+}
+
+/* 命令区外框：青橙脉冲（仅阴影，GPU 友好） */
+@keyframes quantum-input-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.35), inset 0 0 20px rgba(34, 211, 238, 0.06);
+  }
+
+  50% {
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.45), 0 0 24px rgba(34, 211, 238, 0.12), inset 0 0 28px rgba(34, 211, 238, 0.1);
+  }
+}
+
+.quantum-command-wrap:focus-within {
+  animation: quantum-input-pulse 3s ease-in-out infinite;
+}
+
+/* 电路纹理玻璃 */
+.quantum-glass-texture {
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, transparent 42%),
+    linear-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
+  background-size: auto, 24px 24px, 24px 24px;
+}
+
+/* 模拟器「能量槽」输入：聚焦时青色内发光（无持续动画，避免卡顿） */
+.neo-energy-input {
+  border-radius: 14px;
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  background: rgba(15, 23, 42, 0.55);
+  color: rgba(255, 255, 255, 0.92);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+.neo-energy-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.neo-energy-input:focus,
+.neo-energy-input:focus-visible {
+  outline: none;
+  border-color: rgba(34, 211, 238, 0.55);
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35), inset 0 0 32px rgba(34, 211, 238, 0.12);
+}
+
+.neo-energy-input-active {
+  box-shadow: inset 0 0 36px rgba(34, 211, 238, 0.1);
+  border-color: rgba(34, 211, 238, 0.42);
+}
+
+/* 全站玻璃面板（用于壳体/卡片等，不改结构只改样式） */
+.lms-surface {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+main {
+  animation: pageFadeIn 0.25s ease;
+}
+
+.neo-hover-float {
+  transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease, background-color 240ms ease;
+}
+
+.neo-hover-float:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 26px rgba(34, 211, 238, 0.10), 0 18px 45px rgba(0, 0, 0, 0.35);
+  border-color: rgba(34, 211, 238, 0.22);
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes revealIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-in {
+  animation: revealIn 0.28s ease both;
+}
+
+.data-card {
+  @apply rounded-[18px] border border-white/10 bg-white/5;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+/* For white-background line drawings: visually keep dark strokes and blend away white fill. */
+.line-art-cutout {
+  mix-blend-mode: multiply;
+  filter: grayscale(1) contrast(1.35) brightness(0.78);
+  opacity: 0.9;
+}
+
+/* Blend illustration white-bg edges into local card/page background. */
+.page-bg-blend {
+  background-color: transparent;
+  mix-blend-mode: screen;
+}

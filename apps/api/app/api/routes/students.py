@@ -1,0 +1,85 @@
+from fastapi import APIRouter, File, HTTPException, UploadFile
+
+from app.schemas.students import (
+    ApplicationSubmitRequest,
+    ApplicationSubmitResponse,
+    AssessmentGenerateRequest,
+    AssessmentGenerateResponse,
+    AssessmentResult,
+    AssessmentSubmitRequest,
+    ResumeAnalysisRequest,
+    ResumeAnalysisResponse,
+    ResumeExtractResponse,
+    StudentAbilityTrendResponse,
+    StudentApplicationsResponse,
+    StudentDashboardResponse,
+    StudentOverviewResponse,
+)
+from app.services.application_service import (
+    analyze_resume,
+    extract_resume_text,
+    generate_assessment,
+    submit_application,
+    submit_assessment,
+)
+from app.services.student_service import (
+    get_student_ability_trend,
+    get_student_applications,
+    get_student_dashboard,
+    get_student_overview,
+)
+
+router = APIRouter()
+
+
+@router.get("/{student_id}/overview", response_model=StudentOverviewResponse)
+def student_overview(student_id: str):
+    return get_student_overview(student_id)
+
+
+@router.get("/{student_id}/dashboard", response_model=StudentDashboardResponse)
+def student_dashboard(student_id: str):
+    return get_student_dashboard(student_id)
+
+
+@router.get("/{student_id}/applications", response_model=StudentApplicationsResponse)
+def student_applications(student_id: str):
+    return get_student_applications(student_id)
+
+
+@router.get("/{student_id}/ability-trend", response_model=StudentAbilityTrendResponse)
+def student_ability_trend(student_id: str):
+    return get_student_ability_trend(student_id)
+
+
+@router.post("/{student_id}/resume-analysis", response_model=ResumeAnalysisResponse)
+def student_resume_analysis(student_id: str, payload: ResumeAnalysisRequest):
+    return analyze_resume(student_id=student_id, payload=payload)
+
+
+@router.post("/{student_id}/resume-extract", response_model=ResumeExtractResponse)
+async def student_resume_extract(student_id: str, file: UploadFile = File(...)):
+    _ = student_id
+    file_bytes = await file.read()
+    try:
+        return extract_resume_text(file_name=file.filename or "resume", file_bytes=file_bytes, content_type=file.content_type)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/{student_id}/assessment/generate", response_model=AssessmentGenerateResponse)
+def student_assessment_generate(student_id: str, payload: AssessmentGenerateRequest):
+    return generate_assessment(student_id=student_id, payload=payload)
+
+
+@router.post("/{student_id}/assessment/submit", response_model=AssessmentResult)
+def student_assessment_submit(student_id: str, payload: AssessmentSubmitRequest):
+    return submit_assessment(student_id=student_id, payload=payload)
+
+
+@router.post("/{student_id}/applications/submit", response_model=ApplicationSubmitResponse)
+def student_application_submit(student_id: str, payload: ApplicationSubmitRequest):
+    try:
+        return submit_application(student_id=student_id, payload=payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
