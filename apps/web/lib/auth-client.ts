@@ -26,6 +26,7 @@ export async function apiRegister(input: {
   password: string;
   displayName: string;
   companyId?: string;
+  developerKey?: string;
 }) {
   const res = await fetch(`${API_BASE}/auth/register`, {
     method: "POST",
@@ -38,6 +39,7 @@ export async function apiRegister(input: {
       ...(input.role === "enterprise" && input.companyId?.trim()
         ? { company_id: input.companyId.trim() }
         : {}),
+      ...(input.developerKey?.trim() ? { developer_key: input.developerKey.trim() } : {}),
     }),
     cache: "no-store",
   });
@@ -46,7 +48,13 @@ export async function apiRegister(input: {
   return data as AuthSessionResponse;
 }
 
-export async function apiLogin(input: { role: PlatformRole; email: string; password: string; companyId?: string }) {
+export async function apiLogin(input: {
+  role: PlatformRole;
+  email: string;
+  password: string;
+  companyId?: string;
+  developerKey?: string;
+}) {
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -57,6 +65,7 @@ export async function apiLogin(input: { role: PlatformRole; email: string; passw
       ...(input.role === "enterprise" && input.companyId?.trim()
         ? { company_id: input.companyId.trim() }
         : {}),
+      ...(input.developerKey?.trim() ? { developer_key: input.developerKey.trim() } : {}),
     }),
     cache: "no-store",
   });
@@ -65,11 +74,14 @@ export async function apiLogin(input: { role: PlatformRole; email: string; passw
   return data as AuthSessionResponse;
 }
 
-export async function apiRegisterCompany(input: { name: string }) {
+export async function apiRegisterCompany(input: { name: string; developerKey?: string }) {
   const res = await fetch(`${API_BASE}/auth/companies/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: input.name }),
+    body: JSON.stringify({
+      name: input.name,
+      ...(input.developerKey?.trim() ? { developer_key: input.developerKey.trim() } : {}),
+    }),
     cache: "no-store",
   });
   const data = (await res.json()) as any;

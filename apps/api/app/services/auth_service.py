@@ -12,6 +12,7 @@ from threading import Lock
 import psycopg
 
 from app.core.db import get_psycopg_conninfo
+from app.core.trial_access import verify_trial_developer_key
 from app.schemas.auth import PlatformRole, AuthUser
 
 
@@ -155,8 +156,12 @@ def _company_exists(company_id: str) -> bool:
         return False
 
 
-def register_company(name: str) -> CompanyRegisterResult:
+def register_company(name: str, developer_key: str | None = None) -> CompanyRegisterResult:
     """创建公司实体，返回可供企业账号绑定的 company_id（须先调用再注册企业用户）。"""
+    gate_err = verify_trial_developer_key("enterprise", developer_key)
+    if gate_err:
+        return CompanyRegisterResult(ok=False, error=gate_err)
+
     label = name.strip()
     if not label:
         return CompanyRegisterResult(ok=False, error="公司名称不能为空")
@@ -190,7 +195,12 @@ def register(
     password: str,
     display_name: str,
     company_id: str | None = None,
+    developer_key: str | None = None,
 ) -> AuthResult:
+    gate_err = verify_trial_developer_key(role, developer_key)
+    if gate_err:
+        return AuthResult(ok=False, error=gate_err)
+
     conninfo = _conninfo()
     if not conninfo:
         # 与平台其他模块一致：DATABASE_URL 不可用时退回内存 mock（仍可演示注册登录流程）
@@ -291,7 +301,12 @@ def login(
     email: str,
     password: str,
     company_id: str | None = None,
+    developer_key: str | None = None,
 ) -> AuthResult:
+    gate_err = verify_trial_developer_key(role, developer_key)
+    if gate_err:
+        return AuthResult(ok=False, error=gate_err)
+
     conninfo = _conninfo()
     if not conninfo:
         normalized_email = email.strip().lower()

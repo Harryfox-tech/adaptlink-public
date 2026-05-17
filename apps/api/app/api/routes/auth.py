@@ -26,7 +26,7 @@ def _extract_token(authorization: str | None) -> str | None:
 
 @router.post("/companies/register", response_model=CompanyRegisterResponse)
 def register_company(payload: CompanyRegisterRequest):
-    result = auth_service.register_company(name=payload.name)
+    result = auth_service.register_company(name=payload.name, developer_key=payload.developer_key)
     if not result.ok or not result.company_id:
         raise HTTPException(status_code=400, detail=result.error or "公司注册失败")
     return CompanyRegisterResponse(company_id=result.company_id, name=result.name or payload.name.strip())
@@ -40,6 +40,7 @@ def register(payload: AuthRegisterRequest):
         password=payload.password,
         display_name=payload.display_name,
         company_id=payload.company_id,
+        developer_key=payload.developer_key,
     )
     if not result.ok or not result.token or not result.user:
         raise HTTPException(status_code=400, detail=result.error or "注册失败")
@@ -53,6 +54,7 @@ def login(payload: AuthLoginRequest):
         email=payload.email,
         password=payload.password,
         company_id=payload.company_id,
+        developer_key=payload.developer_key,
     )
     if not result.ok or not result.token or not result.user:
         raise HTTPException(status_code=401, detail=result.error or "登录失败")

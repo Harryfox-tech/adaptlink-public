@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 export default function RegisterCompanyPage() {
   const router = useRouter();
   const [name, setName] = React.useState("");
+  const [developerKey, setDeveloperKey] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<{ company_id: string; name: string } | null>(null);
@@ -22,7 +23,7 @@ export default function RegisterCompanyPage() {
       const res = await fetch("/api/auth/company/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, developerKey: developerKey.trim() }),
       });
       const data = (await res.json()) as { company_id?: string; name?: string; error?: string };
       if (!res.ok) throw new Error(data.error || "公司注册失败");
@@ -65,13 +66,23 @@ export default function RegisterCompanyPage() {
             {!result ? (
               <form onSubmit={onSubmit} className="space-y-3">
                 <div className="space-y-1">
+                  <div className="text-sm font-medium">开发者密钥</div>
+                  <Input
+                    value={developerKey}
+                    onChange={(e) => setDeveloperKey(e.target.value)}
+                    type="password"
+                    placeholder="试商用密钥（企业端必填）"
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="space-y-1">
                   <div className="text-sm font-medium">公司名称</div>
                   <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="例如：星澜科技有限公司" />
                 </div>
                 {error ? (
                   <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
                 ) : null}
-                <Button disabled={loading || !name.trim()} className="w-full" type="submit">
+                <Button disabled={loading || !name.trim() || !developerKey.trim()} className="w-full" type="submit">
                   {loading ? "提交中..." : "创建公司并获取 company id"}
                 </Button>
                 <div className="text-sm text-muted-foreground">

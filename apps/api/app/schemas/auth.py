@@ -14,6 +14,8 @@ class AuthRegisterRequest(BaseModel):
     display_name: str = Field(..., min_length=1, max_length=80)
     # 企业端必填：须先调用公司注册获得 company_id，再凭此加入该企业
     company_id: str | None = None
+    # 高校端/企业端试用门禁
+    developer_key: str | None = None
 
 
 class AuthLoginRequest(BaseModel):
@@ -22,10 +24,13 @@ class AuthLoginRequest(BaseModel):
     password: str = Field(..., min_length=1, max_length=200)
     # 企业端必填：与注册时绑定的 company_id 一致
     company_id: str | None = None
+    # 高校端/企业端试用门禁
+    developer_key: str | None = None
 
 
 class CompanyRegisterRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=120)
+    developer_key: str | None = None
 
 
 class CompanyRegisterResponse(BaseModel):

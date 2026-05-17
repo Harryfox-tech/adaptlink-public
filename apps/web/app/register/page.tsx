@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { PlatformRole } from "@/lib/types";
+import { isTrialGatedRole } from "@/lib/trial-access";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ function RegisterPageInner() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [companyId, setCompanyId] = React.useState(preCompanyId);
+  const [developerKey, setDeveloperKey] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -65,6 +67,7 @@ function RegisterPageInner() {
           password,
           displayName,
           ...(role === "enterprise" ? { companyId: companyId.trim() } : {}),
+          ...(isTrialGatedRole(role) ? { developerKey: developerKey.trim() } : {}),
         }),
       });
       const data = (await res.json()) as { error?: string };
@@ -135,6 +138,20 @@ function RegisterPageInner() {
                   autoComplete="new-password"
                 />
               </div>
+
+              {isTrialGatedRole(role) ? (
+                <div className="space-y-1">
+                  <div className="text-sm font-medium">开发者密钥</div>
+                  <Input
+                    value={developerKey}
+                    onChange={(e) => setDeveloperKey(e.target.value)}
+                    type="password"
+                    placeholder="试商用密钥（高校端/企业端必填）"
+                    autoComplete="off"
+                  />
+                  <p className="text-xs text-muted-foreground">本次试用中，高校端与企业端需凭开发者密钥注册。</p>
+                </div>
+              ) : null}
 
               {role === "enterprise" ? (
                 <div className="space-y-1">

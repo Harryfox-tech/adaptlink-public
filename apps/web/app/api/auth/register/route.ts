@@ -10,6 +10,7 @@ export async function POST(request: Request) {
     password?: string;
     displayName?: string;
     companyId?: string;
+    developerKey?: string;
   };
   try {
     const session = await apiRegister({
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
       password: body.password ?? "",
       displayName: body.displayName ?? "",
       companyId: body.companyId,
+      developerKey: body.developerKey,
     });
     const res = NextResponse.json({ user: session.user });
     res.cookies.set(AUTH_COOKIE_NAME, session.token, {

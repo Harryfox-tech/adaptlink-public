@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4.1-mini"
     llm_timeout_seconds: int = 30
 
+    # 试用门禁：高校端/企业端登录与注册须校验此密钥
+    trial_developer_key: str = "psq12345"
+
 
 @lru_cache
 def get_settings() -> Settings:
