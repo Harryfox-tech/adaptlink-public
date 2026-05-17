@@ -150,6 +150,7 @@ cd adaptlink-master
 
 | 现象 | 处理 |
 |------|------|
+| Actions **build-web** 失败 | 多为 Prisma 在 Alpine 缺 OpenSSL；已改用 `bookworm-slim` 基础镜像，pull 最新代码再 push。仍失败则点开 job 日志搜 `Error` |
 | Sealos 一直 ImagePullBackOff | ghcr 包是否 Public；镜像名是否小写 |
 | Web 能开但登录失败 | 检查 `NEXT_PUBLIC_API_BASE_URL` 是否 HTTPS + `/api/v1`；是否重新构建了 web 镜像 |
 | API 连不上数据库 | 检查 `DATABASE_URL` |
