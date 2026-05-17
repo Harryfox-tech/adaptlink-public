@@ -6,9 +6,11 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
+# postinstall 会执行 prisma generate，必须带上 prisma 目录
 COPY apps/web/package.json ./apps/web/package.json
+COPY apps/web/prisma ./apps/web/prisma
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
-RUN npm ci
+RUN npm ci --workspace @platform/web --include-workspace-root=false
 
 FROM node:20-bookworm-slim AS builder
 WORKDIR /app
