@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { analyzeStudentResume, extractStudentResumeFromFile } from "@/lib/api/client";
-import { ResumeAnalysis, ResumeSnapshot } from "@/lib/types";
+import { analyzeStudentResume, extractStudentResumeFromFile, optimizeResumeWithAgent } from "@/lib/api/client";
+import { ResumeAnalysis, ResumeOptimizeResult, ResumeSnapshot } from "@/lib/types";
+import { AgentReasoningPanel } from "@/components/simulator/agent-reasoning-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,8 @@ export function ResumeInsightPanel({ snapshot, embedded = false }: { snapshot?: 
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState("待命");
   const [hint, setHint] = useState<string | null>(null);
+  const [optimizeResult, setOptimizeResult] = useState<ResumeOptimizeResult | null>(null);
+  const [playerStrategy, setPlayerStrategy] = useState<"conservative" | "aggressive" | "random">("conservative");
 
   const withProgress = async <T,>(stages: { label: string; ms: number }[], task: () => Promise<T>) => {
     setLoading(true);
@@ -66,6 +69,33 @@ export function ResumeInsightPanel({ snapshot, embedded = false }: { snapshot?: 
       setHint(`已提取 ${extracted.charCount} 字（${extracted.fileType.toUpperCase()}）`);
     } catch {
       setHint("提取失败，请更换文件或手动粘贴。");
+    }
+  };
+
+  const runOptimize = async () => {
+    if (!resumeText.trim()) return;
+    try {
+      const result = await withProgress(
+        [
+          { label: "Agent 规划优化路径", ms: 800 },
+          { label: "自动跑求职模拟", ms: 2200 },
+          { label: "分析薄弱项并改写简历", ms: 1800 },
+        ],
+        () =>
+          optimizeResumeWithAgent({
+            studentId: "stu_001",
+            originalResume: resumeText,
+            targetJob,
+            iterations: 3,
+            playerStrategy,
+            scoreTarget: 85,
+          }),
+      );
+      setOptimizeResult(result);
+      setResumeText(result.optimizedResume);
+      setHint(`模拟得分 ${result.originalScore} → ${result.finalScore}（${result.engine}）`);
+    } catch {
+      setHint("简历优化 Agent 失败，请检查 API 与 OpenAI 配置。");
     }
   };
 
@@ -130,12 +160,30 @@ export function ResumeInsightPanel({ snapshot, embedded = false }: { snapshot?: 
           onChange={(e) => setResumeText(e.target.value)}
           placeholder="粘贴简历内容，或先上传文件自动提取。"
         />
+        <div className="flex flex-wrap gap-2">
+          <select
+            value={playerStrategy}
+            onChange={(e) => setPlayerStrategy(e.target.value as typeof playerStrategy)}
+            className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+          >
+            <option value="conservative">稳健策略</option>
+            <option value="aggressive">进取策略</option>
+            <option value="random">随机探索</option>
+          </select>
+        </div>
         <Button
           onClick={run}
           disabled={loading || !resumeText.trim()}
           className="bg-cyan-500/20 text-cyan-100 hover:bg-cyan-500/25"
         >
           {loading ? "解析中..." : "生成简历分析"}
+        </Button>
+        <Button
+          onClick={() => void runOptimize()}
+          disabled={loading || !resumeText.trim()}
+          className="bg-violet-500/20 text-violet-100 hover:bg-violet-500/25"
+        >
+          {loading ? "优化中..." : "AI 简历优化（真实模拟）"}
         </Button>
 
         {(loading || progress > 0) && (
@@ -145,6 +193,25 @@ export function ResumeInsightPanel({ snapshot, embedded = false }: { snapshot?: 
           </div>
         )}
         {hint ? <p className="text-xs text-white/55">{hint}</p> : null}
+
+        {optimizeResult ? (
+          <div className="space-y-3">
+            <AgentReasoningPanel trace={optimizeResult.reasoningTrace} engine={optimizeResult.engine} />
+            <div className="rounded-[16px] border border-violet-400/20 bg-violet-500/10 p-3 text-sm">
+              <p className="font-medium text-violet-100">
+                模拟得分 {optimizeResult.originalScore} → {optimizeResult.finalScore}
+              </p>
+              <ul className="mt-2 space-y-1 text-white/65">
+                {optimizeResult.improvementHistory.map((h) => (
+                  <li key={h.iteration}>
+                    第 {h.iteration} 轮：{h.overallScore} 分
+                    {h.weakDimensions.length ? `（薄弱：${h.weakDimensions.join("、")}）` : ""}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ) : null}
 
         {analysis ? (
           <div className="rounded-[16px] border border-white/10 bg-white/5 p-3 text-sm">

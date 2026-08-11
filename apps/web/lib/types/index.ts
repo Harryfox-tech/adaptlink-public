@@ -226,6 +226,24 @@ export type ResumeSnapshot = {
   createdAt: string;
 };
 
+export type ResumeOptimizeIteration = {
+  iteration: number;
+  overallScore: number;
+  weakDimensions: string[];
+  resumePreview: string;
+};
+
+export type ResumeOptimizeResult = {
+  optimizedResume: string;
+  originalScore: number;
+  finalScore: number;
+  improvementHistory: ResumeOptimizeIteration[];
+  modificationLog: string[];
+  suggestedModifications: string[];
+  reasoningTrace: string[];
+  engine: string;
+};
+
 export type AssessmentQuestion = {
   questionId: string;
   section: string;
@@ -349,6 +367,30 @@ export type EpisodeEnding = {
   nextSteps: string[];
 };
 
+export type RecalledMemory = {
+  memoryId: string;
+  text: string;
+  reflectedInStory: boolean;
+};
+
+export type LifeMemory = {
+  memoryId: string;
+  memoryText: string;
+  keywords: string[];
+  importance: number;
+  episodeId: string | null;
+  createdAt: string | null;
+};
+
+export type AgentStepResult = {
+  episode: SimulationEpisode;
+  finished: boolean;
+  endingTriggered: boolean;
+  reasoningTrace: string[];
+  recalledMemories: RecalledMemory[];
+  engine: string;
+};
+
 export type SimulationEpisode = {
   episodeId: string;
   studentId: string;
@@ -362,6 +404,10 @@ export type SimulationEpisode = {
   dialogue: EpisodeDialogueMessage[];
   turns: EpisodeTurnResult[];
   ending?: EpisodeEnding | null;
+  recalledMemories?: RecalledMemory[];
+  endingType?: string | null;
+  totalStagesDynamic?: number;
+  reasoningTrace?: string[];
 };
 
 export type TransformationProjectStatus = "open" | "matched" | "closed" | (string & {});

@@ -410,6 +410,10 @@ type ApiSimulationEpisode = {
     summary: string;
     next_steps: string[];
   } | null;
+  recalled_memories?: { memory_id: string; text: string; reflected_in_story: boolean }[];
+  ending_type?: string | null;
+  total_stages_dynamic?: number | null;
+  reasoning_trace?: string[];
 };
 
 type ApiEpisodeActionResponse = {
@@ -497,6 +501,14 @@ function mapEpisode(api: ApiSimulationEpisode): SimulationEpisode {
           nextSteps: api.ending.next_steps,
         }
       : null,
+    recalledMemories: (api.recalled_memories ?? []).map((m) => ({
+      memoryId: m.memory_id,
+      text: m.text,
+      reflectedInStory: m.reflected_in_story,
+    })),
+    endingType: api.ending_type,
+    totalStagesDynamic: api.total_stages_dynamic ?? undefined,
+    reasoningTrace: api.reasoning_trace ?? [],
   };
 }
 
@@ -1149,6 +1161,96 @@ export async function talkSimulationEpisode(episodeId: string, message: string):
       timestamp: item.timestamp,
     })),
   };
+}
+
+export async function startSimulationAgent(
+  input: {
+    studentId: string;
+    simulationType: "growth" | "job";
+    target: string;
+  },
+  options?: { onTrace?: (line: string) => void; stream?: boolean },
+): Promise<import("@/lib/types").AgentStepResult> {
+  if (options?.stream !== false) {
+    const { startSimulationAgentStream } = await import("@/lib/simulation-agent/stream-client");
+    return startSimulationAgentStream(input, { onTrace: options?.onTrace });
+  }
+  const res = await fetch("/api/simulations/agent/start", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const err = (await res.json()) as { error?: string; code?: string; retryable?: boolean };
+    throw new Error(err.error ?? "Agent 启动失败");
+  }
+  return res.json();
+}
+
+export async function actSimulationAgent(
+  episodeId: string,
+  choice: string,
+  options?: { onTrace?: (line: string) => void; stream?: boolean },
+): Promise<import("@/lib/types").AgentStepResult> {
+  if (options?.stream !== false) {
+    const { actSimulationAgentStream } = await import("@/lib/simulation-agent/stream-client");
+    return actSimulationAgentStream(episodeId, choice, { onTrace: options?.onTrace });
+  }
+  const res = await fetch("/api/simulations/agent/act", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ episodeId, choice }),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const err = (await res.json()) as { error?: string; code?: string; retryable?: boolean };
+    throw new Error(err.error ?? "Agent 回合失败");
+  }
+  return res.json();
+}
+
+export async function getLifeMemories(studentId: string, limit = 20): Promise<import("@/lib/types").LifeMemory[]> {
+  try {
+    const response = await request<{ student_id: string; items: { memory_id: string; memory_text: string; keywords: string[]; importance: number; episode_id: string | null; created_at: string | null }[] }>(
+      `/simulations/memories?student_id=${studentId}&limit=${limit}`,
+    );
+    return response.items.map((item) => ({
+      memoryId: item.memory_id,
+      memoryText: item.memory_text,
+      keywords: item.keywords,
+      importance: item.importance,
+      episodeId: item.episode_id,
+      createdAt: item.created_at,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function deleteLifeMemory(memoryId: string): Promise<void> {
+  await request(`/simulations/memories/${memoryId}`, { method: "DELETE" });
+}
+
+export async function optimizeResumeWithAgent(input: {
+  studentId: string;
+  originalResume: string;
+  targetJob: string;
+  iterations?: number;
+  playerStrategy?: "conservative" | "aggressive" | "random";
+  scoreTarget?: number;
+}): Promise<import("@/lib/types").ResumeOptimizeResult> {
+  const res = await fetch("/api/resume/optimize", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const err = (await res.json()) as { error?: string };
+    throw new Error(err.error ?? "简历优化失败");
+  }
+  return res.json();
 }
 
 type EnterpriseDashboardData = {

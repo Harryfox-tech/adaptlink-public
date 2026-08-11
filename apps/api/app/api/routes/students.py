@@ -1,5 +1,7 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
 
+from app.schemas.resume_optimizer import ResumeOptimizeRequest, ResumeOptimizeResponse
 from app.schemas.students import (
     ApplicationSubmitRequest,
     ApplicationSubmitResponse,
@@ -22,6 +24,8 @@ from app.services.application_service import (
     submit_application,
     submit_assessment,
 )
+from app.services.resume_optimizer_agent_service import optimize_resume_agent_stream, optimize_resume_with_agent
+from app.services.resume_optimizer_service import optimize_resume
 from app.services.student_service import (
     get_student_ability_trend,
     get_student_applications,
@@ -55,6 +59,30 @@ def student_ability_trend(student_id: str):
 @router.post("/{student_id}/resume-analysis", response_model=ResumeAnalysisResponse)
 def student_resume_analysis(student_id: str, payload: ResumeAnalysisRequest):
     return analyze_resume(student_id=student_id, payload=payload)
+
+
+def _resume_optimizer_use_langgraph() -> bool:
+    import os
+
+    return os.environ.get("RESUME_OPTIMIZER_ENGINE", "langgraph").lower() != "legacy"
+
+
+@router.post("/{student_id}/resume-optimize", response_model=ResumeOptimizeResponse)
+def student_resume_optimize(student_id: str, payload: ResumeOptimizeRequest):
+    body = payload.model_copy(update={"student_id": student_id})
+    if _resume_optimizer_use_langgraph():
+        return optimize_resume_with_agent(body)
+    return optimize_resume(body)
+
+
+@router.post("/{student_id}/resume-optimize/stream")
+def student_resume_optimize_stream(student_id: str, payload: ResumeOptimizeRequest):
+    body = payload.model_copy(update={"student_id": student_id})
+    return StreamingResponse(
+        optimize_resume_agent_stream(body),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+    )
 
 
 @router.post("/{student_id}/resume-extract", response_model=ResumeExtractResponse)

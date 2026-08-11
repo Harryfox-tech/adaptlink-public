@@ -94,6 +94,38 @@ class EpisodeEnding(BaseModel):
     next_steps: list[str]
 
 
+class RecalledMemory(BaseModel):
+    memory_id: str
+    text: str
+    reflected_in_story: bool = False
+
+
+class LifeMemoryItem(BaseModel):
+    memory_id: str
+    memory_text: str
+    keywords: list[str] = Field(default_factory=list)
+    importance: int = 5
+    episode_id: str | None = None
+    created_at: str | None = None
+
+
+class LifeMemoryListResponse(BaseModel):
+    student_id: str
+    items: list[LifeMemoryItem]
+
+
+class MemoryCreateRequest(BaseModel):
+    student_id: str
+    memory_text: str
+    keywords: list[str] = Field(default_factory=list)
+    importance: int = Field(default=5, ge=1, le=10)
+    episode_id: str | None = None
+
+
+class MemoryCreateResponse(BaseModel):
+    memory_id: str
+
+
 class SimulationEpisode(BaseModel):
     episode_id: str
     student_id: str
@@ -107,6 +139,10 @@ class SimulationEpisode(BaseModel):
     dialogue: list[EpisodeDialogueMessage] = Field(default_factory=list)
     turns: list[EpisodeTurnResult] = Field(default_factory=list)
     ending: EpisodeEnding | None = None
+    recalled_memories: list[RecalledMemory] = Field(default_factory=list)
+    ending_type: str | None = None
+    total_stages_dynamic: int | None = None
+    reasoning_trace: list[str] = Field(default_factory=list)
 
 
 class EpisodeStartRequest(BaseModel):
@@ -124,6 +160,13 @@ class EpisodeActionRequest(BaseModel):
 class EpisodeActionResponse(BaseModel):
     episode: SimulationEpisode
     finished: bool
+    ending_triggered: bool = False
+
+
+class EpisodePersistRequest(BaseModel):
+    episode: SimulationEpisode
+    ending_type: str | None = None
+    agent_trace: list[str] = Field(default_factory=list)
 
 
 class EpisodeDialogueRequest(BaseModel):

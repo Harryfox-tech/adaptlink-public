@@ -26,6 +26,8 @@ from app.schemas.simulations import (
     SimulationStartRequest,
 )
 from app.services.agent_llm_service import llm_generate_json, llm_generate_text, should_try_real_llm
+from app.services.ending_engine import evaluate_ending
+from app.services.memory_service import record_episode_memories, retrieve_relevant_memories
 from app.services.simulation_service import run_simulation_and_persist
 
 EPISODE_STORE: dict[str, SimulationEpisode] = {}
@@ -1344,7 +1346,11 @@ def _build_ending(episode: SimulationEpisode) -> EpisodeEnding:
     )
 
 
-def _persist_episode(episode: SimulationEpisode) -> None:
+def _persist_episode(
+    episode: SimulationEpisode,
+    ending_type: str | None = None,
+    agent_trace: list[str] | None = None,
+) -> None:
     conninfo = get_psycopg_conninfo()
     if not conninfo:
         return
@@ -1366,8 +1372,36 @@ def _persist_episode(episode: SimulationEpisode) -> None:
                         current_event_json JSONB,
                         ending_json JSONB,
                         dialogue_json JSONB,
+                        ending_type VARCHAR(32),
+                        ending_narrative TEXT,
+                        total_stages_dynamic SMALLINT,
+                        agent_trace_json JSONB,
                         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
                     )
+                    """
+                )
+                cur.execute(
+                    """
+                    ALTER TABLE app_simulation_episodes
+                    ADD COLUMN IF NOT EXISTS ending_type VARCHAR(32)
+                    """
+                )
+                cur.execute(
+                    """
+                    ALTER TABLE app_simulation_episodes
+                    ADD COLUMN IF NOT EXISTS ending_narrative TEXT
+                    """
+                )
+                cur.execute(
+                    """
+                    ALTER TABLE app_simulation_episodes
+                    ADD COLUMN IF NOT EXISTS total_stages_dynamic SMALLINT
+                    """
+                )
+                cur.execute(
+                    """
+                    ALTER TABLE app_simulation_episodes
+                    ADD COLUMN IF NOT EXISTS agent_trace_json JSONB
                     """
                 )
                 cur.execute(
@@ -1385,12 +1419,14 @@ def _persist_episode(episode: SimulationEpisode) -> None:
                     """
                 )
 
+                ending_narrative = episode.ending.summary if episode.ending else None
                 cur.execute(
                     """
                     INSERT INTO app_simulation_episodes (
                       episode_id, student_id, simulation_type, target, total_stages,
-                      current_stage, status, state_json, current_event_json, ending_json, dialogue_json, updated_at
-                    ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+                      current_stage, status, state_json, current_event_json, ending_json, dialogue_json,
+                      ending_type, ending_narrative, total_stages_dynamic, agent_trace_json, updated_at
+                    ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())
                     ON CONFLICT (episode_id) DO UPDATE SET
                       current_stage = EXCLUDED.current_stage,
                       status = EXCLUDED.status,
@@ -1398,6 +1434,10 @@ def _persist_episode(episode: SimulationEpisode) -> None:
                       current_event_json = EXCLUDED.current_event_json,
                       ending_json = EXCLUDED.ending_json,
                       dialogue_json = EXCLUDED.dialogue_json,
+                      ending_type = EXCLUDED.ending_type,
+                      ending_narrative = EXCLUDED.ending_narrative,
+                      total_stages_dynamic = EXCLUDED.total_stages_dynamic,
+                      agent_trace_json = EXCLUDED.agent_trace_json,
                       updated_at = NOW()
                     """,
                     (
@@ -1412,6 +1452,10 @@ def _persist_episode(episode: SimulationEpisode) -> None:
                         json.dumps(episode.current_event.model_dump(), ensure_ascii=False) if episode.current_event else None,
                         json.dumps(episode.ending.model_dump(), ensure_ascii=False) if episode.ending else None,
                         json.dumps([d.model_dump() for d in episode.dialogue], ensure_ascii=False),
+                        ending_type or episode.ending_type,
+                        ending_narrative,
+                        episode.total_stages_dynamic or episode.total_stages,
+                        json.dumps(agent_trace or episode.reasoning_trace or [], ensure_ascii=False),
                     ),
                 )
 
@@ -1439,12 +1483,14 @@ def _persist_episode(episode: SimulationEpisode) -> None:
 
 def start_episode(request: EpisodeStartRequest) -> SimulationEpisode:
     rng = random.Random(request.seed if request.seed is not None else int(datetime.utcnow().timestamp()))
+    dynamic_stages = rng.randint(4, 5)
+    memories = retrieve_relevant_memories(request.student_id, limit=3, context=request.target)
     episode = SimulationEpisode(
         episode_id=f"ep_{request.simulation_type}_{uuid4().hex[:8]}",
         student_id=request.student_id,
         simulation_type=request.simulation_type,
         target=request.target,
-        total_stages=4,
+        total_stages=dynamic_stages,
         current_stage=1,
         status="running",
         state=EpisodeState(confidence=55, pressure=45, energy=70, readiness=50),
@@ -1452,6 +1498,8 @@ def start_episode(request: EpisodeStartRequest) -> SimulationEpisode:
         dialogue=[],
         turns=[],
         ending=None,
+        recalled_memories=memories,
+        total_stages_dynamic=dynamic_stages,
     )
 
     event, _, _ = _generate_event(episode, rng)
@@ -1564,11 +1612,24 @@ def act_episode(episode_id: str, request: EpisodeActionRequest) -> EpisodeAction
     episode.turns.append(turn)
     episode.state = next_state
 
-    if episode.current_stage >= episode.total_stages:
+    ending_eval = evaluate_ending(episode)
+    ending_triggered = False
+    if ending_eval.triggered and ending_eval.ending:
+        episode.status = "completed"
+        episode.current_event = None
+        episode.ending = ending_eval.ending
+        episode.ending_type = ending_eval.ending_type
+        record_episode_memories(episode)
+        finished = True
+        ending_triggered = True
+    elif episode.current_stage >= (episode.total_stages_dynamic or episode.total_stages):
         episode.status = "completed"
         episode.current_event = None
         episode.ending = _build_ending(episode)
+        episode.ending_type = "neutral"
+        record_episode_memories(episode)
         finished = True
+        ending_triggered = True
     else:
         episode.current_stage += 1
         next_event, _, event_fallback = _generate_event(episode, rng)
@@ -1586,4 +1647,15 @@ def act_episode(episode_id: str, request: EpisodeActionRequest) -> EpisodeAction
 
     EPISODE_STORE[episode_id] = episode
     _persist_episode(episode)
-    return EpisodeActionResponse(episode=episode, finished=finished)
+    return EpisodeActionResponse(episode=episode, finished=finished, ending_triggered=ending_triggered)
+
+
+def persist_agent_episode(episode: SimulationEpisode, ending_type: str | None = None, agent_trace: list[str] | None = None) -> None:
+    if ending_type:
+        episode.ending_type = ending_type
+    if agent_trace:
+        episode.reasoning_trace = agent_trace
+    EPISODE_STORE[episode.episode_id] = episode
+    _persist_episode(episode, ending_type=ending_type, agent_trace=agent_trace)
+    if episode.status == "completed":
+        record_episode_memories(episode)

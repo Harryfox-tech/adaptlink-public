@@ -2,8 +2,11 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { actSimulationEpisode, startSimulationEpisode, talkSimulationEpisode } from "@/lib/api/client";
-import { SimulationEpisode } from "@/lib/types";
+import { actSimulationAgent, startSimulationAgent, talkSimulationEpisode } from "@/lib/api/client";
+import { RecalledMemory, SimulationEpisode } from "@/lib/types";
+import { AgentReasoningPanel } from "@/components/simulator/agent-reasoning-panel";
+import { RecalledMemoriesPanel } from "@/components/simulator/recalled-memories-panel";
+import { EndingModal } from "@/components/simulator/ending-modal";
 import { AbilityScoreCards } from "@/components/charts/ability-score-cards";
 import { AgentReviewList } from "@/components/simulator/agent-review-list";
 import { JobRecommendationList } from "@/components/simulator/job-recommendation-list";
@@ -53,6 +56,10 @@ export function StorylineSimulator({
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<ProgressMeta>({ active: false, value: 0, stage: "待命" });
+  const [reasoningTrace, setReasoningTrace] = useState<string[]>([]);
+  const [recalledMemories, setRecalledMemories] = useState<RecalledMemory[]>([]);
+  const [agentEngine, setAgentEngine] = useState<string>("mock");
+  const [showEndingModal, setShowEndingModal] = useState(false);
 
   const latestTurn = useMemo(() => (episode?.turns.length ? episode.turns[episode.turns.length - 1] : null), [episode]);
 
@@ -97,23 +104,42 @@ export function StorylineSimulator({
     }
   };
 
+  const appendTraceLine = (line: string) => {
+    setReasoningTrace((prev) => (prev.includes(line) ? prev : [...prev, line]));
+  };
+
   const startEpisode = async () => {
     if (!targetRole.trim()) {
       setError("请先填写目标角色。");
       return;
     }
     try {
+      setReasoningTrace([]);
       const created = await withRealProgress(
         [
           { label: "构建剧情世界观", durationMs: 1000 },
           { label: "生成角色问题线", durationMs: 1400 },
           { label: "初始化状态与评分", durationMs: 900 },
         ],
-        () => startSimulationEpisode({ studentId: "stu_001", simulationType, target: targetSummary }),
+        async () => {
+          const result = await startSimulationAgent(
+            {
+              studentId: "stu_001",
+              simulationType,
+              target: targetSummary,
+            },
+            { onTrace: appendTraceLine },
+          );
+          setReasoningTrace(result.reasoningTrace);
+          setRecalledMemories(result.recalledMemories);
+          setAgentEngine(result.engine);
+          return result.episode;
+        },
       );
       setEpisode(created);
       setAnswerInput("");
       setTalkInput("");
+      setShowEndingModal(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "启动剧情失败");
     }
@@ -128,9 +154,20 @@ export function StorylineSimulator({
           { label: "评估能力变化", durationMs: 1300 },
           { label: "生成下一轮问题", durationMs: 900 },
         ],
-        () => actSimulationEpisode(episode.episodeId, answerInput.trim()),
+        async () => {
+          const result = await actSimulationAgent(episode.episodeId, answerInput.trim(), {
+            onTrace: appendTraceLine,
+          });
+          setReasoningTrace(result.reasoningTrace);
+          setRecalledMemories(result.recalledMemories.length ? result.recalledMemories : recalledMemories);
+          setAgentEngine(result.engine);
+          if (result.endingTriggered && result.episode.ending) {
+            setShowEndingModal(true);
+          }
+          return result.episode;
+        },
       );
-      setEpisode(next.episode);
+      setEpisode(next);
       setAnswerInput("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "提交回合失败");
@@ -165,9 +202,20 @@ export function StorylineSimulator({
           { label: "计算事件影响", durationMs: 1200 },
           { label: "生成下一段剧情", durationMs: 1000 },
         ],
-        () => actSimulationEpisode(episode.episodeId, choice.trim()),
+        async () => {
+          const result = await actSimulationAgent(episode.episodeId, choice.trim(), {
+            onTrace: appendTraceLine,
+          });
+          setReasoningTrace(result.reasoningTrace);
+          setRecalledMemories(result.recalledMemories.length ? result.recalledMemories : recalledMemories);
+          setAgentEngine(result.engine);
+          if (result.endingTriggered && result.episode.ending) {
+            setShowEndingModal(true);
+          }
+          return result.episode;
+        },
       );
-      setEpisode(next.episode);
+      setEpisode(next);
       setAnswerInput("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "提交选择失败");
@@ -176,7 +224,7 @@ export function StorylineSimulator({
 
   const statusTips = latestTurn?.aggregate.recommendations?.slice(0, 3) ?? ["保持表达结构化", "先给结论再补证据", "每轮回答控制在3点以内"];
   const activeEvent = episode?.currentEvent;
-  const eventChoices: string[] = activeEvent?.choices ?? [];
+  const eventChoices: string[] = episode?.status === "completed" ? [] : activeEvent?.choices ?? [];
   const currentNarrative = latestTurn
     ? `你本轮选择：${latestTurn.choice}\n\n${latestTurn.narrative}`
     : activeEvent?.openingLine ?? "请开始剧情，系统会生成当前事件与角色冲突。";
@@ -228,8 +276,10 @@ export function StorylineSimulator({
             <div className="inline-flex flex-wrap gap-2 text-xs text-white/55">
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Enter：提交回答</span>
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Esc：清空输入</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">建议：先结论→再证据</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Agent 模式</span>
             </div>
+            <RecalledMemoriesPanel memories={recalledMemories} className="mt-3" />
+            <AgentReasoningPanel trace={reasoningTrace} engine={agentEngine} className="mt-3" />
           </div>
           <div className="min-h-[200px] w-full">
             <QuantumTalentHeroPanel imageSrc="/pic/3.png" />
@@ -470,6 +520,14 @@ export function StorylineSimulator({
       ) : null}
 
       {error ? <p className="text-sm text-rose-300">{error}</p> : null}
+
+      <EndingModal
+        open={showEndingModal && Boolean(episode?.ending)}
+        ending={episode?.ending!}
+        endingType={episode?.endingType}
+        episode={episode}
+        onClose={() => setShowEndingModal(false)}
+      />
     </div>
   );
 }
