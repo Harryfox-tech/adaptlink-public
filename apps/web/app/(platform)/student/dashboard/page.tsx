@@ -41,15 +41,15 @@ export default async function StudentDashboardPage() {
   return (
     <NeoCanvas>
       <NeoStagger>
-      <NeoItem className="mb-5">
-        <div className="space-y-1">
-          <div className="text-[36px] font-semibold tracking-tight text-white">学生成长总览</div>
-          <div className="text-[12px] text-white/55">AI 智能体多维评估 · 数据可视化</div>
-        </div>
+      <NeoItem className="mb-1">
+        <header className="border-b border-white/10 pb-5">
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-white md:text-4xl">学生成长总览</h1>
+          <p className="mt-2 max-w-2xl text-sm text-white/55 md:text-base">基于模拟训练与档案数据的能力视图，帮助你规划下一步行动。</p>
+        </header>
       </NeoItem>
 
-      <div className="grid grid-cols-3 gap-5">
-        <div className="col-span-2 space-y-5">
+      <div className="dashboard-grid">
+        <div className="dashboard-main">
           <NeoItem>
             <NeoWelcomeCard role="student" />
           </NeoItem>
@@ -78,27 +78,25 @@ export default async function StudentDashboardPage() {
             <div className="mt-4 flex items-end justify-between gap-4">
               <div>
                 <div className="text-[12px] font-medium text-white/60">核心指标</div>
-                <div className="mt-1 text-[38px] font-semibold tracking-tight">
-                  <span className="bg-gradient-to-r from-cyan-300 via-emerald-300 to-blue-400 bg-clip-text text-transparent">
-                    TAI: {tai.toFixed(1)}
-                  </span>
-                </div>
+                <div className="mt-1 font-mono text-[2rem] font-semibold tabular-nums tracking-tight text-cyan-200">
+                    TAI {tai.toFixed(1)}
+                  </div>
                 <div className="mt-2 grid grid-cols-2 gap-x-8 gap-y-1 text-[12px] text-white/60">
                   <div>
                     模拟训练次数{" "}
-                    <span className="font-semibold text-cyan-300">{dashboard.metrics?.[1]?.value ?? "27"}</span>
+                    <span className="font-semibold tabular-nums text-white">{dashboard.metrics?.[1]?.value ?? "27"}</span>
                   </div>
                   <div>
                     岗位匹配中位分{" "}
-                    <span className="font-semibold text-emerald-300">{dashboard.metrics?.[2]?.value ?? "78"}</span>
+                    <span className="font-semibold tabular-nums text-white">{dashboard.metrics?.[2]?.value ?? "78"}</span>
                   </div>
                   <div>
                     本周行动项{" "}
-                    <span className="font-semibold text-blue-300">{dashboard.metrics?.[3]?.value ?? "4"}</span>
+                    <span className="font-semibold tabular-nums text-white">{dashboard.metrics?.[3]?.value ?? "4"}</span>
                   </div>
                   <div>
                     变化趋势{" "}
-                    <span className="font-semibold text-fuchsia-300">{dashboard.metrics?.[0]?.delta ?? "+3.4"}</span>
+                    <span className="font-semibold tabular-nums text-cyan-200">{dashboard.metrics?.[0]?.delta ?? "+3.4"}</span>
                   </div>
                 </div>
               </div>
@@ -157,7 +155,7 @@ export default async function StudentDashboardPage() {
                   <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold text-amber-200">
                     逻辑链条偶发断裂
                   </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-fuchsia-400/20 bg-fuchsia-500/10 px-3 py-1 text-[11px] font-semibold text-fuchsia-200">
+                  <span className="inline-flex items-center gap-2 rounded-md border border-amber-400/20 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold text-amber-200">
                     案例深度待增强
                   </span>
                 </div>
@@ -212,7 +210,7 @@ export default async function StudentDashboardPage() {
           </NeoItem>
         </div>
 
-        <div className="col-span-1 space-y-5">
+        <div className="dashboard-aside">
           <NeoItem>
             <GlassCard className="px-6 py-5 neo-hover-float">
             <div className="flex items-center justify-between">
@@ -301,11 +299,11 @@ export default async function StudentDashboardPage() {
                 <Link
                   key={job.title}
                   href="/student/recommendations"
-                  className="group flex items-center justify-between gap-3 rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 transition hover:-translate-y-[1px] hover:border-emerald-300/25 hover:bg-white/7 hover:shadow-[0_0_22px_rgba(16,185,129,0.10)]"
+                  className="group flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition duration-200 hover:-translate-y-px hover:border-cyan-300/25 hover:bg-white/[0.06]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-emerald-500/12 text-emerald-200 ring-1 ring-emerald-400/20">
-                      <span className="text-[12px] font-black">智</span>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/12 text-cyan-100 ring-1 ring-cyan-400/20">
+                      <span className="text-xs font-bold">岗</span>
                     </div>
                     <div>
                       <div className="text-[12px] font-semibold text-white/85">{job.title}</div>
@@ -313,7 +311,7 @@ export default async function StudentDashboardPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[16px] font-semibold text-emerald-300">{job.score.toFixed(1)}</div>
+                    <div className="font-mono text-base font-semibold tabular-nums text-cyan-200">{job.score.toFixed(1)}</div>
                     <div className="text-[10px] text-white/45">匹配分</div>
                   </div>
                 </Link>

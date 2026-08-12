@@ -9,8 +9,11 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
+        sans: ["var(--font-outfit)", "PingFang SC", "Microsoft YaHei", "system-ui", "sans-serif"],
+        display: ["var(--font-outfit)", "PingFang SC", "Microsoft YaHei", "system-ui", "sans-serif"],
+        mono: ["var(--font-jetbrains)", "ui-monospace", "monospace"],
         quantum: ["var(--font-jetbrains)", "ui-monospace", "monospace"],
-        qdisplay: ["var(--font-space)", "var(--font-inter)", "system-ui", "sans-serif"],
+        qdisplay: ["var(--font-outfit)", "PingFang SC", "system-ui", "sans-serif"],
       },
       colors: {
         brand: "#22d3ee",
@@ -28,27 +31,25 @@ module.exports = {
         accentForeground: "hsl(var(--accent-foreground))",
       },
       borderRadius: {
-        lg: "0.75rem",
-        md: "0.5rem",
-        sm: "0.375rem",
+        lg: "1rem",
+        md: "0.75rem",
+        sm: "0.5rem",
+        xl: "1.125rem",
+        "2xl": "1.25rem",
+      },
+      boxShadow: {
+        panel: "0 18px 45px rgba(2, 8, 23, 0.55), 0 0 0 1px rgba(255,255,255,0.04)",
+        "panel-hover": "0 22px 50px rgba(2, 8, 23, 0.62), 0 0 28px rgba(34, 211, 238, 0.08)",
+        glow: "0 0 24px rgba(34, 211, 238, 0.14)",
       },
       keyframes: {
         "fade-in-up": {
           "0%": { opacity: 0, transform: "translateY(8px)" },
           "100%": { opacity: 1, transform: "translateY(0)" },
         },
-        "quantum-float": {
-          "0%, 100%": { transform: "translate(0, 0) scale(1)", opacity: "0.35" },
-          "33%": { transform: "translate(6%, -4%) scale(1.05)", opacity: "0.5" },
-          "66%": { transform: "translate(-5%, 5%) scale(0.96)", opacity: "0.3" },
-        },
-        "quantum-mesh-spin": {
-          from: { transform: "rotate(0deg)" },
-          to: { transform: "rotate(360deg)" },
-        },
       },
       animation: {
-        "fade-in-up": "fade-in-up 0.4s ease-out",
+        "fade-in-up": "fade-in-up 0.35s ease-out",
       },
     },
   },

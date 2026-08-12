@@ -12,9 +12,12 @@ export default async function SchoolDashboardPage() {
   const data = await getSchoolDashboardData();
 
   return (
-    <LmsCanvas title="高校培养诊断总览">
-      <div className="grid grid-cols-3 gap-5">
-        <div className="col-span-2 space-y-5">
+    <LmsCanvas
+      title="高校培养诊断总览"
+      description="聚焦培养供需差距、学生能力画像与校企合作反馈，支撑教学改革决策。"
+    >
+      <div className="dashboard-grid">
+        <div className="dashboard-main space-y-6">
           <WelcomeCard role="school" imageSrc="/pic/new1.png" />
           <div className="grid grid-cols-2 gap-5">
             <LmsSurface>
@@ -22,10 +25,10 @@ export default async function SchoolDashboardPage() {
                 <div className="font-qdisplay text-[14px] font-semibold text-white/90">快捷入口</div>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <a href="/school/students" className="rounded-[16px] border border-white/10 bg-white/[0.04] px-4 py-3 font-quantum text-white/80 transition hover:border-cyan-400/20 hover:bg-white/[0.06]">学生画像</a>
-                <a href="/school/curriculum" className="rounded-[16px] border border-white/10 bg-white/[0.04] px-4 py-3 font-quantum text-white/80 transition hover:border-cyan-400/20 hover:bg-white/[0.06]">专业与课程分析</a>
-                <a href="/school/projects" className="rounded-[16px] border border-white/10 bg-white/[0.04] px-4 py-3 font-quantum text-white/80 transition hover:border-cyan-400/20 hover:bg-white/[0.06]">项目招募中心</a>
-                <a href="/school/analytics" className="rounded-[16px] border border-white/10 bg-white/[0.04] px-4 py-3 font-quantum text-white/80 transition hover:border-cyan-400/20 hover:bg-white/[0.06]">决策报告中心</a>
+                <a href="/school/students" className="quick-link">学生画像</a>
+                <a href="/school/curriculum" className="quick-link">专业与课程分析</a>
+                <a href="/school/projects" className="quick-link">项目招募中心</a>
+                <a href="/school/analytics" className="quick-link">决策报告中心</a>
               </div>
               <div className="mt-3 font-quantum text-xs text-white/45">一键进入端内核心模块。</div>
             </LmsSurface>
@@ -52,11 +55,11 @@ export default async function SchoolDashboardPage() {
           <Card>
             <CardHeader><CardTitle>多层级视图切换</CardTitle></CardHeader>
             <CardContent className="flex flex-wrap gap-2 text-sm">
-              <Badge className="border border-cyan-500/25 bg-cyan-500/12 font-quantum text-cyan-100/90">学校</Badge>
-              <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">学院</Badge>
-              <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">专业</Badge>
-              <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">年级</Badge>
-              <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">班级</Badge>
+              <Badge variant="accent">学校</Badge>
+              <Badge>学院</Badge>
+              <Badge>专业</Badge>
+              <Badge>年级</Badge>
+              <Badge>班级</Badge>
             </CardContent>
           </Card>
 
@@ -74,7 +77,7 @@ export default async function SchoolDashboardPage() {
           </Card>
         </div>
 
-        <div className="col-span-1 space-y-5">
+        <div className="dashboard-aside space-y-6">
           <CalendarCard
             title="治理/教学日程"
             subtitle="快捷入口"

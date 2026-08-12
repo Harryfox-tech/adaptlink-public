@@ -3,19 +3,21 @@
 @tailwind utilities;
 
 :root {
-  /* Sci-Fi Glass 全站主题变量（仅影响样式，不影响任何逻辑） */
-  --background: 222 47% 7%; /* ~ slate-950 */
+  --background: 222 47% 6%;
   --foreground: 210 40% 98%;
-  --card: 222 47% 11%;
+  --card: 222 40% 9%;
   --card-foreground: 210 40% 98%;
-  --primary: 187 92% 69%; /* ~ cyan-300 */
+  --primary: 187 85% 53%;
   --primary-foreground: 222 47% 7%;
-  --muted: 222 47% 14%;
-  --muted-foreground: 215 20% 72%;
-  --border: 215 25% 16%;
-  --ring: 187 92% 69%;
-  --accent: 222 47% 14%;
+  --muted: 222 32% 12%;
+  --muted-foreground: 215 18% 68%;
+  --border: 215 22% 16%;
+  --ring: 187 85% 53%;
+  --accent: 222 32% 14%;
   --accent-foreground: 210 40% 98%;
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+  --shadow-tint: 187 85% 53%;
 }
 
 * {
@@ -28,15 +30,31 @@ html {
 
 body {
   @apply bg-background text-foreground antialiased;
-  background-image: radial-gradient(1200px circle at 30% 20%, rgba(45, 212, 191, 0.10), transparent 55%),
-    radial-gradient(900px circle at 75% 15%, rgba(14, 165, 233, 0.08), transparent 55%),
-    radial-gradient(900px circle at 60% 85%, rgba(34, 211, 238, 0.06), transparent 55%);
-  font-family: var(--font-inter), "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background-color: hsl(222 47% 6%);
+  background-image:
+    radial-gradient(1100px circle at 24% 12%, rgba(34, 211, 238, 0.07), transparent 58%),
+    radial-gradient(900px circle at 82% 8%, rgba(14, 165, 233, 0.05), transparent 52%);
+  font-family: var(--font-outfit), "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 16px;
   line-height: 1.6;
+  font-feature-settings: "kern" 1, "liga" 1;
 }
 
-/* 全息面板：极细扫描栅格（静态，低开销） */
+.app-grain::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.surface-panel {
+  @apply rounded-2xl border border-white/10 bg-white/[0.045] text-white/90 backdrop-blur-md;
+  box-shadow: 0 18px 45px rgba(2, 8, 23, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
 .quantum-scanline {
   position: relative;
 }
@@ -50,13 +68,12 @@ body {
     180deg,
     transparent,
     transparent 3px,
-    rgba(255, 255, 255, 0.02) 3px,
-    rgba(255, 255, 255, 0.02) 4px
+    rgba(255, 255, 255, 0.018) 3px,
+    rgba(255, 255, 255, 0.018) 4px
   );
   pointer-events: none;
 }
 
-/* 剧情对话微弱 glitch（低频率，避免性能问题） */
 @keyframes quantum-glitch {
   0%,
   94%,
@@ -78,16 +95,14 @@ body {
   animation: quantum-glitch 5s ease-in-out infinite;
 }
 
-/* 命令区外框：青橙脉冲（仅阴影，GPU 友好） */
 @keyframes quantum-input-pulse {
-
   0%,
   100% {
-    box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.35), inset 0 0 20px rgba(34, 211, 238, 0.06);
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.28), inset 0 0 20px rgba(34, 211, 238, 0.05);
   }
 
   50% {
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.45), 0 0 24px rgba(34, 211, 238, 0.12), inset 0 0 28px rgba(34, 211, 238, 0.1);
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.42), 0 0 20px rgba(34, 211, 238, 0.1), inset 0 0 24px rgba(34, 211, 238, 0.08);
   }
 }
 
@@ -95,17 +110,16 @@ body {
   animation: quantum-input-pulse 3s ease-in-out infinite;
 }
 
-/* 电路纹理玻璃 */
 .quantum-glass-texture {
-  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, transparent 42%),
-    linear-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
+  background-image:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%),
+    linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
   background-size: auto, 24px 24px, 24px 24px;
 }
 
-/* 模拟器「能量槽」输入：聚焦时青色内发光（无持续动画，避免卡顿） */
 .neo-energy-input {
-  border-radius: 14px;
+  border-radius: var(--radius-control);
   border: 1px solid rgba(34, 211, 238, 0.28);
   background: rgba(15, 23, 42, 0.55);
   color: rgba(255, 255, 255, 0.92);
@@ -120,7 +134,7 @@ body {
 .neo-energy-input:focus-visible {
   outline: none;
   border-color: rgba(34, 211, 238, 0.55);
-  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35), inset 0 0 32px rgba(34, 211, 238, 0.12);
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35), inset 0 0 32px rgba(34, 211, 238, 0.1);
 }
 
 .neo-energy-input-active {
@@ -128,15 +142,9 @@ body {
   border-color: rgba(34, 211, 238, 0.42);
 }
 
-/* 全站玻璃面板（用于壳体/卡片等，不改结构只改样式） */
-.lms-surface {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-  position: relative;
-  overflow: hidden;
+.lms-surface,
+.data-card {
+  @apply surface-panel relative overflow-hidden;
 }
 
 main {
@@ -144,13 +152,17 @@ main {
 }
 
 .neo-hover-float {
-  transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease, background-color 240ms ease;
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, background-color 220ms ease;
 }
 
 .neo-hover-float:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 26px rgba(34, 211, 238, 0.10), 0 18px 45px rgba(0, 0, 0, 0.35);
-  border-color: rgba(34, 211, 238, 0.22);
+  box-shadow: 0 22px 50px rgba(2, 8, 23, 0.62), 0 0 24px rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.2);
+}
+
+.neo-hover-float:active {
+  transform: translateY(0) scale(0.995);
 }
 
 @keyframes pageFadeIn {
@@ -181,20 +193,53 @@ main {
   animation: revealIn 0.28s ease both;
 }
 
-.data-card {
-  @apply rounded-[18px] border border-white/10 bg-white/5;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-}
-
-/* For white-background line drawings: visually keep dark strokes and blend away white fill. */
 .line-art-cutout {
   mix-blend-mode: multiply;
   filter: grayscale(1) contrast(1.35) brightness(0.78);
   opacity: 0.9;
 }
 
-/* Blend illustration white-bg edges into local card/page background. */
 .page-bg-blend {
   background-color: transparent;
   mix-blend-mode: screen;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.dashboard-grid {
+  @apply grid grid-cols-1 gap-6 xl:grid-cols-12;
+}
+
+.dashboard-main {
+  @apply space-y-6 xl:col-span-8;
+}
+
+.dashboard-aside {
+  @apply space-y-6 xl:col-span-4;
+}
+
+.metric-tile {
+  @apply rounded-xl border border-white/10 bg-white/[0.04] p-4 transition duration-200;
+}
+
+.metric-tile:hover {
+  @apply border-cyan-400/20 bg-white/[0.06];
+}
+
+.quick-link {
+  @apply rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/80 transition duration-200;
+}
+
+.quick-link:hover {
+  @apply border-cyan-400/20 bg-white/[0.06] text-white;
+}
+
+.quick-link:active {
+  @apply scale-[0.98];
 }

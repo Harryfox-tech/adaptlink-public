@@ -15,9 +15,12 @@ export default async function EnterpriseDashboardPage() {
   const data = await getEnterpriseDashboardData(token);
 
   return (
-    <LmsCanvas title="企业招聘总览">
-      <div className="grid grid-cols-3 gap-5">
-        <div className="col-span-2 space-y-5">
+    <LmsCanvas
+      title="企业招聘总览"
+      description="从岗位建模到候选人筛选与流程协同，一屏掌握招聘经营状态。"
+    >
+      <div className="dashboard-grid">
+        <div className="dashboard-main space-y-6">
           <WelcomeCard role="enterprise" imageSrc="/pic/new1.png" />
           <div className="grid grid-cols-2 gap-5">
             <LmsSurface>
@@ -25,10 +28,10 @@ export default async function EnterpriseDashboardPage() {
                 <div className="font-qdisplay text-[14px] font-semibold text-white/90">快捷入口</div>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <a href="/enterprise/jobs" className="rounded-[16px] border border-white/10 bg-white/[0.04] px-4 py-3 font-quantum text-white/80 transition hover:border-cyan-400/20 hover:bg-white/[0.06]">岗位建模</a>
-                <a href="/enterprise/talent-pool" className="rounded-[16px] border border-white/10 bg-white/[0.04] px-4 py-3 font-quantum text-white/80 transition hover:border-cyan-400/20 hover:bg-white/[0.06]">候选人工作台</a>
-                <a href="/enterprise/recruitment" className="rounded-[16px] border border-white/10 bg-white/[0.04] px-4 py-3 font-quantum text-white/80 transition hover:border-cyan-400/20 hover:bg-white/[0.06]">流程协同</a>
-                <a href="/enterprise/analytics" className="rounded-[16px] border border-white/10 bg-white/[0.04] px-4 py-3 font-quantum text-white/80 transition hover:border-cyan-400/20 hover:bg-white/[0.06]">数据洞察</a>
+                <a href="/enterprise/jobs" className="quick-link">岗位建模</a>
+                <a href="/enterprise/talent-pool" className="quick-link">候选人工作台</a>
+                <a href="/enterprise/recruitment" className="quick-link">流程协同</a>
+                <a href="/enterprise/analytics" className="quick-link">数据洞察</a>
               </div>
               <div className="mt-3 font-quantum text-xs text-white/45">直接跳转到端内核心工作台。</div>
             </LmsSurface>
@@ -63,7 +66,7 @@ export default async function EnterpriseDashboardPage() {
               {data.funnel.map((item, idx) => (
                 <div key={item.stage}>
                   <div className="mb-1 flex items-center justify-between font-quantum text-sm text-white/55"><span>{item.stage}</span><span className="tabular-nums text-white/70">{item.value}</span></div>
-                  <div className="h-2 rounded-full bg-white/[0.08]"><div className="h-2 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500" style={{ width: `${(item.value / data.funnel[0].value) * 100}%` }} /></div>
+                  <div className="h-2 rounded-full bg-white/[0.08]"><div className="h-2 rounded-full bg-cyan-400/80" style={{ width: `${(item.value / data.funnel[0].value) * 100}%` }} /></div>
                   {idx < data.funnel.length - 1 ? <div className="my-1 border-t border-dashed border-white/10" /> : null}
                 </div>
               ))}
@@ -74,14 +77,7 @@ export default async function EnterpriseDashboardPage() {
             <CardHeader><CardTitle>能力缺口热词</CardTitle></CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               {data.gap_words.map((word, index) => (
-                <Badge
-                  key={word}
-                  className={
-                    index < 2
-                      ? "border border-cyan-500/25 bg-cyan-500/12 font-quantum text-cyan-100/90"
-                      : "border border-white/10 bg-white/5 font-quantum text-white/70"
-                  }
-                >
+                <Badge key={word} variant={index < 2 ? "accent" : "default"}>
                   {word}
                 </Badge>
               ))}
@@ -89,7 +85,7 @@ export default async function EnterpriseDashboardPage() {
           </Card>
         </div>
 
-        <div className="col-span-1 space-y-5">
+        <div className="dashboard-aside space-y-6">
           <CalendarCard
             title="运营日程"
             subtitle="快捷入口"

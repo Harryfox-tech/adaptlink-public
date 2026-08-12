@@ -8,7 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { labelSimulationType } from "@/lib/ui-labels";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { History, Sparkles } from "lucide-react";
 
 export function SimulationHistoryTabs({
   history,
@@ -56,7 +59,21 @@ export function SimulationHistoryTabs({
           </CardHeader>
           <CardContent>
             {history.length === 0 ? (
-              <p className="text-sm text-white/55">暂无历史记录。先完成一次模拟即可在这里查看。</p>
+              <EmptyState
+                icon={<History className="h-5 w-5" />}
+                title="还没有模拟记录"
+                description="完成一次成长或求职模拟后，会话、得分与复盘链接会出现在这里。"
+                action={
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <Button asChild size="sm">
+                      <Link href="/student/simulators/growth">开始成长模拟</Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link href="/student/simulators/job">开始求职模拟</Link>
+                    </Button>
+                  </div>
+                }
+              />
             ) : (
               <Table>
                 <TableHeader>
@@ -101,9 +118,13 @@ export function SimulationHistoryTabs({
           </CardHeader>
           <CardContent>
             {loadingMemories ? (
-              <p className="text-sm text-white/55">加载中…</p>
+              <TableSkeleton rows={3} cols={1} />
             ) : memories.length === 0 ? (
-              <p className="text-sm text-white/55">暂无长期记忆。完成 Agent 模拟结局后会自动沉淀。</p>
+              <EmptyState
+                icon={<Sparkles className="h-5 w-5" />}
+                title="人生记忆墙还是空的"
+                description="完成带 Agent 结局的模拟后，系统会把关键经历沉淀为长期记忆，供后续模拟引用。"
+              />
             ) : (
               <ul className="space-y-3">
                 {memories.map((mem) => (

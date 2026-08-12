@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { labelChatStatus } from "@/lib/ui-labels";
+import { EmptyState } from "@/components/ui/empty-state";
+import { MessageSquare } from "lucide-react";
 
 export default function StudentAssistantPage() {
   const { messages, input, handleInputChange, handleSubmit, status, error } = useChat({
@@ -16,13 +18,13 @@ export default function StudentAssistantPage() {
 
   return (
     <div className="space-y-4">
-      <section className="relative mb-6 space-y-3 border-b border-white/10 pb-10">
-        <h1 className="text-4xl font-semibold tracking-tight text-white">AI 求职助手</h1>
-        <p className="text-[14px] leading-[22px] text-white/65">
+      <section className="relative mb-6 space-y-3 border-b border-white/10 pb-8">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white md:text-4xl">AI 求职助手</h1>
+        <p className="max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
           对话式求职助手，支持简历优化、模拟问答和岗位匹配建议。
         </p>
         <div className="flex flex-wrap gap-2">
-          <Badge>智能对话</Badge>
+          <Badge variant="accent">智能对话</Badge>
           <Badge>场景化问答</Badge>
           <Badge>行动建议</Badge>
         </div>
@@ -39,7 +41,11 @@ export default function StudentAssistantPage() {
           <CardContent>
             <div className="h-[420px] space-y-3 overflow-y-auto rounded-[16px] border border-white/10 bg-white/5 p-3">
               {messages.length === 0 ? (
-                <p className="text-sm text-white/55">输入你的问题，助手会给出结构化建议。</p>
+                <EmptyState
+                  icon={<MessageSquare className="h-5 w-5" />}
+                  title="开始第一次对话"
+                  description="在右侧输入问题，或直接使用下方预设提示，助手会给出结构化建议。"
+                />
               ) : (
                 messages.map((message) => (
                   <div key={message.id} className={message.role === "user" ? "text-right" : "text-left"}>
