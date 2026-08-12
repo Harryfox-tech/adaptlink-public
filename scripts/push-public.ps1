@@ -15,5 +15,5 @@ if (-not (git remote get-url public 2>$null)) {
 }
 
 Write-Host "推送到 public/main ..."
-git -c http.proxy= -c https.proxy= push public main:main --force-with-lease
+git push public main:main
 Write-Host "完成: https://github.com/Harryfox-tech/adaptlink-public"
