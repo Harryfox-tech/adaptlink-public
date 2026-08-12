@@ -1,19 +1,82 @@
-﻿# Node
-node_modules
-npm-debug.log*
+﻿# ── Dependencies ──
+node_modules/
+.pnp
+.pnp.js
 
-# Next
-.next
-out
+# ── Next.js ──
+.next/
+out/
+.vercel/
 
-# Python
-__pycache__
-*.pyc
-.venv
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.Python
 
-# Env
+# ── Environment & secrets (never commit real keys) ──
 .env
 .env.local
+.env.*.local
+apps/api/.env
+apps/web/.env
+!.env.example
+!.env.*.example
+apps/api/.env.example
+apps/web/.env.example
 
-# Prisma
+# Private keys / certs
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+*.crt
+
+# ── IDE & editor ──
+.cursor/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── Logs & debug ──
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+next-dev.*.log
+
+# ── Test & coverage ──
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.tox/
+
+# ── Build artifacts ──
+dist/
+build/
+*.tsbuildinfo
+
+# ── Prisma (local migrations; use prisma migrate in dev) ──
 apps/web/prisma/migrations
+
+# ── Local agent / skill tooling (optional dev only) ──
+.agents/
+skills-lock.json
+
+# ── Misc ──
+tmp/
+temp/
+*.local

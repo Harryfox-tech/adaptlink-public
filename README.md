@@ -1,59 +1,96 @@
-# 智能人才发展与就业服务平台（Monorepo 骨架）
+# AdaptLink · 智能人才发展与就业服务平台
 
-## 目录
-- `apps/web`: Next.js + TypeScript + Tailwind + Vercel AI SDK 前端
-- `apps/api`: FastAPI 后端（多智能体评估工作流占位）
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## 国内部署（Sealos + GitHub Actions）
+面向 **学生 / 企业 / 高校** 三端的人才培养与就业协同平台。支持成长/求职剧情模拟、LangGraph ReAct Agent、简历优化、岗位建模与招聘分析。
 
-**按这个做即可：** **[SEALOS_操作清单.md](./SEALOS_操作清单.md)**（你要做的步骤清单）。
+## 技术栈
 
-- 代码在 GitHub → Actions 自动构建镜像到 `ghcr.io` → Sealos 填镜像名运行  
-- 详细说明：[DEPLOYMENT_SEALOS.md](./DEPLOYMENT_SEALOS.md)
+| 层 | 技术 |
+|---|---|
+| 前端 | Next.js 15 · TypeScript · Tailwind · Framer Motion |
+| 后端 | FastAPI · Python · LangGraph · PostgreSQL |
+| AI | OpenAI 兼容 API（DeepSeek 等）· 多 Agent 评估 |
+| 部署 | Docker · GitHub Actions · Sealos（可选） |
 
-本地可先：`copy .env.sealos.example .env` → `docker compose up --build`。
+## 仓库结构
 
-## 快速启动
-1. 前端
-```bash
-npm install
-npm run dev:web
+```
+apps/web/     Next.js 前端（学生/企业/高校三端）
+apps/api/     FastAPI 后端与 Agent 服务
+scripts/      本地开发与部署脚本
 ```
 
-2. 后端
+## 快速开始
+
+### 1. 克隆与依赖
+
 ```bash
+git clone https://github.com/Harryfox-tech/adaptlink.git
+cd adaptlink
+npm install
+```
+
+### 2. 环境变量
+
+```bash
+# Windows
+copy .env.example .env
+copy apps\api\.env.example apps\api\.env
+copy apps\web\.env.example apps\web\.env
+
+# Linux / macOS
+cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+```
+
+按需填写 `DATABASE_URL`、`OPENAI_API_KEY` 等。**切勿将 `.env` 提交到 Git。**
+
+### 3. 启动
+
+```bash
+# 前端
+npm run dev:web
+
+# 后端（另开终端）
 cd apps/api
 python -m venv .venv
-.venv\\Scripts\\activate
+.venv\Scripts\activate    # Windows
 pip install -r requirements.txt
 cd ../..
 npm run dev:api
 ```
 
-3. 访问
-- Web: http://localhost:3000
-- API: http://localhost:8000/docs
+- Web: http://localhost:3000  
+- API 文档: http://localhost:8000/docs  
 
-后端连库：
-- 在 `apps/api/.env` 中配置 `DATABASE_URL`
-- `POST /api/v1/simulations/run` 会自动写入 PostgreSQL（若未配置则自动回退 mock）
+### 4. Docker 本地验证（可选）
 
-学生端模拟器双回退：
-- 第1层：后端真实模型评估（`AI_PROVIDER=openai` 且配置 `OPENAI_API_KEY`）
-- 第2层：后端 mock 多智能体评估（真实模型失败时自动启用）
-- 第3层：前端本地 mock 数据（后端不可用时自动启用）
-
-## Prisma（可选）
-在 `apps/web` 下执行：
 ```bash
-npm run prisma:generate
-npm run prisma:migrate -- --name init
-npm run prisma:seed
+copy .env.sealos.example .env
+docker compose up --build
 ```
 
-## 一键开发脚本
-```bash
-powershell -ExecutionPolicy Bypass -File scripts/dev-start.ps1
-powershell -ExecutionPolicy Bypass -File scripts/dev-status.ps1
-powershell -ExecutionPolicy Bypass -File scripts/dev-stop.ps1
-```
+## 核心功能
+
+- **学生端**：成长/求职模拟、简历分析与 AI 优化、岗位推荐、投递工作台
+- **企业端**：岗位能力建模、人才池筛选、招聘漏斗、数据洞察
+- **高校端**：学生画像、课程能力映射、培养诊断
+- **Agent**：LangGraph ReAct 剧情模拟、简历优化 auto-run 实时 SSE 进度
+
+## 部署
+
+- 操作清单：[SEALOS_操作清单.md](./SEALOS_操作清单.md)
+- 详细说明：[DEPLOYMENT_SEALOS.md](./DEPLOYMENT_SEALOS.md)
+
+## 开源与贡献
+
+- **协议**：[MIT License](./LICENSE)
+- **安全**：[SECURITY.md](./SECURITY.md)
+- 欢迎提交 Issue / Pull Request
+- 参与前请先 `fork` 仓库，确保本地 `.env` 不在提交范围内
+
+## 许可证
+
+本项目采用 [MIT License](./LICENSE) 开源。
