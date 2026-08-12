@@ -79,10 +79,14 @@ docker compose up --build
 - **高校端**：学生画像、课程能力映射、培养诊断
 - **Agent**：LangGraph ReAct 剧情模拟、简历优化 auto-run 实时 SSE 进度
 
-## 部署
+## 文档
 
-- 操作清单：[SEALOS_操作清单.md](./SEALOS_操作清单.md)
-- 详细说明：[DEPLOYMENT_SEALOS.md](./DEPLOYMENT_SEALOS.md)
+| 文件 | 说明 |
+|------|------|
+| [SIMULATION.md](./SIMULATION.md) | 模拟器模块说明（评审/合作方阅读） |
+| [DEPLOYMENT_SEALOS.md](./DEPLOYMENT_SEALOS.md) | Sealos 部署指南 |
+| [SEALOS_操作清单.md](./SEALOS_操作清单.md) | Sealos 逐步操作清单 |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | Vercel + Render 等替代部署 |
 
 ## 开源与贡献
 

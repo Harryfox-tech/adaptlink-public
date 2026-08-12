@@ -172,7 +172,8 @@ Simulation 不是「一个大模型给一段话」，而是 **分角色、分维
 2. **评审 Agent（显式）** — 如「HR 面试官 Agent」「辅导员 Agent」，各给出分数、摘要、亮点  
 3. **剧情导演 / NPC（Episode）** — 负责事件标题、冲突描述、选项与开场白；追问时扮演 `npc_role`
 
-提示词索引（便于二次开发）：根目录 [`PROMPTS_CATALOG.md`](./PROMPTS_CATALOG.md)  
+提示词维护见源码：
+
 - §1 单次模拟多 Agent 编排 → `agent_llm_service.py`  
 - §2–3 剧情事件 JSON / NPC 对话 → `simulation_episode_service.py`
 
@@ -340,4 +341,4 @@ flowchart TB
 
 > **AdaptLink Simulation = 剧情化能力演练场 + React 真 Agent 推理 + 长期记忆 + 动态结局 + 可进投递与校企协同的能力证据链。**
 
-如需更细的提示词原文或表结构 SQL，请配合阅读 [`PROMPTS_CATALOG.md`](./PROMPTS_CATALOG.md) 与 [`项目概况.md`](./项目概况.md) 第八节。
+如需更细的提示词原文，请直接查阅 `apps/api/app/services/` 下对应 service 源码。
