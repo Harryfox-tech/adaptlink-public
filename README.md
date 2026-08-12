@@ -26,8 +26,8 @@ scripts/      本地开发与部署脚本
 ### 1. 克隆与依赖
 
 ```bash
-git clone https://github.com/Harryfox-tech/adaptlink.git
-cd adaptlink
+git clone https://github.com/Harryfox-tech/adaptlink-public.git
+cd adaptlink-public
 npm install
 ```
 
