@@ -25,7 +25,7 @@ export function ProfileHero({ result }: { result: SimulationResult }) {
         <div className="space-y-4">
           <div className="space-y-2">
             <h1 className="font-qdisplay text-3xl font-bold tracking-tight text-white md:text-4xl">
-              GLOBAL TALENT CODEX <span className="text-white/60">- PORTFOLIO DASHBOARD</span>
+              全球人才档案 <span className="text-white/60">· 成长作品集</span>
             </h1>
             <p className="font-quantum text-sm leading-relaxed text-white/55 md:text-base">
               沉淀模拟评估结果与能力画像变化，支撑长期成长与求职决策。

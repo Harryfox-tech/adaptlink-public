@@ -193,6 +193,10 @@ def optimize_resume_with_agent(payload: ResumeOptimizeRequest) -> ResumeOptimize
 
 
 def optimize_resume_agent_stream(payload: ResumeOptimizeRequest) -> Iterator[str]:
+    import queue
+    import threading
+
+    event_q: queue.Queue[tuple[str, Any]] = queue.Queue()
     session_id = new_session_id()
     state = new_resume_optimizer_state(
         student_id=payload.student_id,
@@ -203,6 +207,16 @@ def optimize_resume_agent_stream(payload: ResumeOptimizeRequest) -> Iterator[str
         player_strategy=payload.player_strategy,
         session_id=session_id,
     )
+
+    def live_trace(line: str) -> None:
+        event_q.put(("trace", line))
+
+    def live_turn(data: dict[str, Any]) -> None:
+        event_q.put(("turn", data))
+
+    state["_liveTraceSink"] = live_trace
+    state["_liveTurnSink"] = live_turn
+
     prompt = f"""
 目标岗位: {payload.target_job}
 策略: {payload.player_strategy}
@@ -212,12 +226,44 @@ def optimize_resume_agent_stream(payload: ResumeOptimizeRequest) -> Iterator[str
 请开始 ReAct 简历优化循环。
 """.strip()
 
-    for kind, payload_line in _run_react_events(state, prompt, max_steps=20):
-        if kind == "trace":
-            yield f"event: trace\ndata: {json.dumps({'line': payload_line}, ensure_ascii=False)}\n\n"
+    error_box: list[Exception] = []
+    result_box: list[ResumeOptimizeResponse] = []
 
-    _persist_domain_state(state)
-    result = _to_response(state)
+    def worker() -> None:
+        try:
+            for kind, payload_line in _run_react_events(state, prompt, max_steps=20):
+                if kind == "trace":
+                    event_q.put(("trace", payload_line))
+                elif kind == "done":
+                    break
+            _persist_domain_state(state)
+            result_box.append(_to_response(state))
+        except Exception as exc:  # noqa: BLE001
+            error_box.append(exc)
+        finally:
+            event_q.put(("finished", None))
+
+    thread = threading.Thread(target=worker, daemon=True)
+    thread.start()
+
+    while True:
+        kind, data = event_q.get()
+        if kind == "finished":
+            break
+        if kind == "trace":
+            yield f"event: trace\ndata: {json.dumps({'line': data}, ensure_ascii=False)}\n\n"
+        elif kind == "turn":
+            yield f"event: turn\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+    if error_box:
+        yield f"event: error\ndata: {json.dumps({'error': str(error_box[0])}, ensure_ascii=False)}\n\n"
+        return
+
+    if not result_box:
+        yield f"event: error\ndata: {json.dumps({'error': 'Resume agent produced no result'}, ensure_ascii=False)}\n\n"
+        return
+
+    result = result_box[0]
     body = {
         "optimizedResume": result.optimized_resume,
         "originalScore": result.original_score,

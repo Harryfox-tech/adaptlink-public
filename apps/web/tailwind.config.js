@@ -13,7 +13,7 @@ module.exports = {
         qdisplay: ["var(--font-space)", "var(--font-inter)", "system-ui", "sans-serif"],
       },
       colors: {
-        brand: "#165DFF",
+        brand: "#22d3ee",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: "hsl(var(--card))",

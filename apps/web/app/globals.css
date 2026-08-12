@@ -29,8 +29,8 @@ html {
 body {
   @apply bg-background text-foreground antialiased;
   background-image: radial-gradient(1200px circle at 30% 20%, rgba(45, 212, 191, 0.10), transparent 55%),
-    radial-gradient(900px circle at 75% 15%, rgba(168, 85, 247, 0.12), transparent 55%),
-    radial-gradient(900px circle at 60% 85%, rgba(59, 130, 246, 0.12), transparent 55%);
+    radial-gradient(900px circle at 75% 15%, rgba(14, 165, 233, 0.08), transparent 55%),
+    radial-gradient(900px circle at 60% 85%, rgba(34, 211, 238, 0.06), transparent 55%);
   font-family: var(--font-inter), "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 16px;
   line-height: 1.6;

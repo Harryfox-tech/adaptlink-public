@@ -5,14 +5,14 @@ import * as React from "react";
 import { motion } from "framer-motion";
 
 const DEMO_LABELS = [
-  { tag: "LEADER", score: "92" },
-  { tag: "TECH", score: "88" },
-  { tag: "OPS", score: "85" },
-  { tag: "DATA", score: "90" },
-  { tag: "UX", score: "87" },
-  { tag: "PM", score: "84" },
-  { tag: "DEV", score: "91" },
-  { tag: "AI", score: "93" },
+  { tag: "领导力", score: "92" },
+  { tag: "技术", score: "88" },
+  { tag: "运营", score: "85" },
+  { tag: "数据", score: "90" },
+  { tag: "体验", score: "87" },
+  { tag: "产品", score: "84" },
+  { tag: "开发", score: "91" },
+  { tag: "智能", score: "93" },
 ];
 
 /** 顶部「赛博人才群像数据卡」：3.png + 毛玻璃 + 慢速几何粒子层 + 标签占位 */
@@ -37,7 +37,7 @@ export function QuantumTalentHeroPanel({ imageSrc = "/pic/3.png" }: { imageSrc?:
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.04)_1px,transparent_1px)] [background-size:32px_32px] opacity-50" />
 
       <div className="relative z-[1] p-4 md:p-5">
-        <p className="mb-3 font-qdisplay text-[10px] font-semibold uppercase tracking-[0.28em] text-cyan-300/80">Holographic Talent Mesh</p>
+        <p className="mb-3 font-qdisplay text-[10px] font-semibold uppercase tracking-[0.28em] text-cyan-300/80">全息人才矩阵</p>
         <div className="relative overflow-hidden rounded-[14px]">
           <Image
             src={imageSrc}

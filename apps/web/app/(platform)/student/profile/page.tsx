@@ -31,8 +31,8 @@ export default async function StudentProfilePage() {
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="quantum-glass-texture overflow-hidden border-cyan-500/20 bg-slate-950/45 backdrop-blur-xl">
               <CardHeader className="border-b border-white/[0.06] pb-3">
-                <CardTitle className="font-qdisplay text-base">HOLOGRAPHIC INSIGHTS FEED</CardTitle>
-                <p className="font-quantum text-xs text-white/45">最近洞察 · snapshots · tags</p>
+                <CardTitle className="font-qdisplay text-base">全息洞察流</CardTitle>
+                <p className="font-quantum text-xs text-white/45">最近洞察 · 快照 · 标签</p>
               </CardHeader>
               <CardContent className="space-y-3 pt-4">
                 {[
@@ -45,15 +45,15 @@ export default async function StudentProfilePage() {
                       <div className="min-w-0 flex-1">
                         <p className="font-quantum text-[12px] leading-relaxed text-white/70">{line}</p>
                         <div className="mt-2 flex flex-wrap gap-2">
-                          <Badge className="border border-cyan-500/15 bg-cyan-500/10 font-quantum text-[10px] text-cyan-100/85">Advisor</Badge>
-                          <Badge className="border border-white/10 bg-white/5 font-quantum text-[10px] text-white/65">Snapshot</Badge>
+                          <Badge className="border border-cyan-500/15 bg-cyan-500/10 font-quantum text-[10px] text-cyan-100/85">顾问</Badge>
+                          <Badge className="border border-white/10 bg-white/5 font-quantum text-[10px] text-white/65">快照</Badge>
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
-                <div className="rounded-[14px] border border-white/[0.08] bg-black/15 p-3 text-center font-quantum text-[10px] uppercase tracking-[0.2em] text-white/45">
-                  HOLOGRAPHIC SNAPSHOTS FEED
+                <div className="rounded-[14px] border border-white/[0.08] bg-black/15 p-3 text-center font-quantum text-[10px] tracking-[0.2em] text-white/45">
+                  全息快照流
                 </div>
               </CardContent>
             </Card>
@@ -107,7 +107,7 @@ export default async function StudentProfilePage() {
           <QuantumWordCloud words={cloudWords} />
           <AbilityTrendChart series={trendSeries} />
           <div className="relative overflow-hidden rounded-[18px] border border-cyan-500/20 bg-slate-950/55 p-4 shadow-[0_0_40px_rgba(34,211,238,0.10)] backdrop-blur-xl">
-            <p className="mb-3 font-qdisplay text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">DATA CONSOLE</p>
+            <p className="mb-3 font-qdisplay text-[11px] font-semibold tracking-[0.2em] text-white/70">数据控制台</p>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 {Array.from({ length: 3 }).map((_, i) => (

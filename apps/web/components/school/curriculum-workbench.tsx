@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { labelEngine } from "@/lib/ui-labels";
 
 type ProgressMeta = {
   active: boolean;
@@ -132,11 +133,11 @@ export function SchoolCurriculumWorkbench({
 
           <div className="flex flex-wrap items-center gap-2">
             <Button onClick={handleOptimize} disabled={loading}>AI 生成课程优化</Button>
-            {engine ? <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">引擎: {engine}</Badge> : null}
+            {engine ? <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">引擎: {labelEngine(engine)}</Badge> : null}
             {saved !== null ? <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">数据库: {saved ? "已落库" : "不可用"}</Badge> : null}
           </div>
           {hint ? <p className="font-quantum text-sm text-white/55">{hint}</p> : null}
-          {error ? <p className="text-sm text-rose-600">{error}</p> : null}
+          {error ? <p className="text-sm text-rose-300">{error}</p> : null}
         </CardContent>
       </Card>
 

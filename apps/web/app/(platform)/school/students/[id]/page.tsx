@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { labelRiskLevel, labelSimulationType, labelTrend, warnBadgeClass } from "@/lib/ui-labels";
 
 function courseHints(focusAreas: string[]) {
   const hints: string[] = [];
@@ -39,7 +40,7 @@ export default async function SchoolStudentDetailPage({
           <CardContent className="space-y-2 text-sm text-muted-foreground">
             <p>专业：{detail.major}</p>
             <p>年级：{detail.grade}</p>
-            <p>风险等级：{detail.riskLevel}</p>
+            <p>风险等级：{labelRiskLevel(detail.riskLevel)}</p>
             <p>综合评分：{detail.overallScore}</p>
             <Progress value={detail.overallScore} className="mt-2" />
           </CardContent>
@@ -52,7 +53,7 @@ export default async function SchoolStudentDetailPage({
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {detail.focusAreas.map((item) => (
-                <Badge key={item} className="bg-amber-100 text-amber-700">
+                <Badge key={item} className={warnBadgeClass}>
                   {item}
                 </Badge>
               ))}
@@ -80,7 +81,7 @@ export default async function SchoolStudentDetailPage({
                   <TableRow key={item.abilityKey}>
                     <TableCell>{item.abilityLabel}</TableCell>
                     <TableCell>{item.score}</TableCell>
-                    <TableCell>{item.trend}</TableCell>
+                    <TableCell>{labelTrend(item.trend)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -151,7 +152,7 @@ export default async function SchoolStudentDetailPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Session</TableHead>
+                <TableHead>会话 ID</TableHead>
                 <TableHead>类型</TableHead>
                 <TableHead>得分</TableHead>
                 <TableHead>摘要</TableHead>
@@ -162,7 +163,7 @@ export default async function SchoolStudentDetailPage({
               {detail.latestSimulations.map((item) => (
                 <TableRow key={item.sessionId}>
                   <TableCell>{item.sessionId}</TableCell>
-                  <TableCell>{item.simulationType}</TableCell>
+                  <TableCell>{labelSimulationType(item.simulationType)}</TableCell>
                   <TableCell>{item.overallScore}</TableCell>
                   <TableCell>{item.summary}</TableCell>
                   <TableCell>{item.createdAt}</TableCell>

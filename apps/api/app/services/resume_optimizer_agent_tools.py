@@ -53,6 +53,18 @@ def _run_simulation(state: dict[str, Any]) -> str:
         return _tool_obs({"ok": False, "error": "已达最大迭代次数", "iterationCount": state["iterationCount"]})
 
     state["iterationCount"] += 1
+
+    def on_trace(line: str) -> None:
+        state.setdefault("reasoningTrace", []).append(line)
+        sink = state.get("_liveTraceSink")
+        if callable(sink):
+            sink(line)
+
+    def on_turn(data: dict[str, Any]) -> None:
+        sink = state.get("_liveTurnSink")
+        if callable(sink):
+            sink(data)
+
     result = run_auto_simulation(
         SimulationAutoRunRequest(
             student_id=state["studentId"],
@@ -60,7 +72,9 @@ def _run_simulation(state: dict[str, Any]) -> str:
             target_job=state["targetJob"],
             simulation_type="job",
             player_strategy=state["playerStrategy"],
-        )
+        ),
+        on_trace=on_trace,
+        on_turn=on_turn,
     )
     if result.engine == "openai":
         state["engine"] = "openai"

@@ -19,10 +19,7 @@ export default function LmsDashboardPage() {
       </div>
       <div className="relative mx-auto w-[1120px]">
         <div className="mb-8 flex items-center justify-between">
-          <div className="text-[42px] font-semibold text-white">Dashboard for student</div>
-          <div className="rounded-full border border-white/10 bg-white/5 px-5 py-2 text-[13px] font-medium text-white/80 backdrop-blur-md shadow-[0_0_15px_rgba(45,212,191,0.12)]">
-            Light mode
-          </div>
+          <div className="font-qdisplay text-[42px] font-semibold text-white">学生成长总览</div>
         </div>
 
         <div className="flex gap-6">

@@ -39,7 +39,7 @@ from app.schemas.agent_state import (
 from app.schemas.resume_optimizer import SimulationAutoRunRequest, SimulationAutoRunResponse
 from app.services.agent_state_service import delete_agent_state, load_agent_state, save_agent_state
 from app.services.simulation_agent_service import run_agent_act, run_agent_act_stream, run_agent_start, run_agent_start_stream
-from app.services.simulation_auto_run_service import run_auto_simulation
+from app.services.simulation_auto_run_service import run_auto_simulation, run_auto_simulation_stream
 from app.services.simulation_service import get_latest_simulation, get_simulation_history, run_simulation_and_persist
 
 router = APIRouter()
@@ -146,6 +146,15 @@ def remove_agent_state(episode_id: str):
 @router.post("/auto-run", response_model=SimulationAutoRunResponse)
 def simulation_auto_run(payload: SimulationAutoRunRequest):
     return run_auto_simulation(payload)
+
+
+@router.post("/auto-run/stream")
+def simulation_auto_run_stream(payload: SimulationAutoRunRequest):
+    return StreamingResponse(
+        run_auto_simulation_stream(payload),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+    )
 
 
 @router.post("/run", response_model=SimulationStartResponse)

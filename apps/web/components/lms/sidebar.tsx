@@ -15,31 +15,31 @@ type Item = {
 
 const roleItems: Record<PlatformRole, Item[]> = {
   student: [
-    { label: "Dashboard", href: "/student/dashboard", icon: <FaThLarge className="h-4 w-4" /> },
-    { label: "Profile", href: "/student/profile", icon: <FaBookOpen className="h-4 w-4" /> },
-    { label: "Simulators", href: "/student/simulators/growth", icon: <FaCalendarAlt className="h-4 w-4" /> },
-    { label: "Recommendations", href: "/student/recommendations", icon: <FaFolderOpen className="h-4 w-4" /> },
-    { label: "Applications", href: "/student/applications", icon: <FaClipboardCheck className="h-4 w-4" /> },
-    { label: "Assistant", href: "/student/assistant", icon: <FaComments className="h-4 w-4" /> },
-    { label: "Settings", href: "/student/profile", icon: <FaCog className="h-4 w-4" /> },
+    { label: "总览", href: "/student/dashboard", icon: <FaThLarge className="h-4 w-4" /> },
+    { label: "成长档案", href: "/student/profile", icon: <FaBookOpen className="h-4 w-4" /> },
+    { label: "模拟训练", href: "/student/simulators/growth", icon: <FaCalendarAlt className="h-4 w-4" /> },
+    { label: "岗位推荐", href: "/student/recommendations", icon: <FaFolderOpen className="h-4 w-4" /> },
+    { label: "投递进度", href: "/student/applications", icon: <FaClipboardCheck className="h-4 w-4" /> },
+    { label: "AI 助手", href: "/student/assistant", icon: <FaComments className="h-4 w-4" /> },
+    { label: "设置", href: "/student/profile", icon: <FaCog className="h-4 w-4" /> },
   ],
   enterprise: [
-    { label: "Dashboard", href: "/enterprise/dashboard", icon: <FaThLarge className="h-4 w-4" /> },
-    { label: "Jobs", href: "/enterprise/jobs", icon: <FaBookOpen className="h-4 w-4" /> },
-    { label: "Talent pool", href: "/enterprise/talent-pool", icon: <FaFolderOpen className="h-4 w-4" /> },
-    { label: "Recruitment", href: "/enterprise/recruitment", icon: <FaClipboardCheck className="h-4 w-4" /> },
-    { label: "Partnerships", href: "/enterprise/partnerships", icon: <FaComments className="h-4 w-4" /> },
-    { label: "Analytics", href: "/enterprise/analytics", icon: <FaCalendarAlt className="h-4 w-4" /> },
-    { label: "Settings", href: "/enterprise/settings", icon: <FaCog className="h-4 w-4" /> },
+    { label: "总览", href: "/enterprise/dashboard", icon: <FaThLarge className="h-4 w-4" /> },
+    { label: "岗位建模", href: "/enterprise/jobs", icon: <FaBookOpen className="h-4 w-4" /> },
+    { label: "人才库", href: "/enterprise/talent-pool", icon: <FaFolderOpen className="h-4 w-4" /> },
+    { label: "流程协同", href: "/enterprise/recruitment", icon: <FaClipboardCheck className="h-4 w-4" /> },
+    { label: "校企合作", href: "/enterprise/partnerships", icon: <FaComments className="h-4 w-4" /> },
+    { label: "数据洞察", href: "/enterprise/analytics", icon: <FaCalendarAlt className="h-4 w-4" /> },
+    { label: "设置", href: "/enterprise/settings", icon: <FaCog className="h-4 w-4" /> },
   ],
   school: [
-    { label: "Dashboard", href: "/school/dashboard", icon: <FaThLarge className="h-4 w-4" /> },
-    { label: "Students", href: "/school/students", icon: <FaBookOpen className="h-4 w-4" /> },
-    { label: "Curriculum", href: "/school/curriculum", icon: <FaFolderOpen className="h-4 w-4" /> },
-    { label: "Projects", href: "/school/projects", icon: <FaClipboardCheck className="h-4 w-4" /> },
-    { label: "Analytics", href: "/school/analytics", icon: <FaCalendarAlt className="h-4 w-4" /> },
-    { label: "Settings", href: "/school/settings", icon: <FaCog className="h-4 w-4" /> },
-    { label: "Partnerships", href: "/school/partnerships", icon: <FaComments className="h-4 w-4" /> },
+    { label: "总览", href: "/school/dashboard", icon: <FaThLarge className="h-4 w-4" /> },
+    { label: "学生画像", href: "/school/students", icon: <FaBookOpen className="h-4 w-4" /> },
+    { label: "课程分析", href: "/school/curriculum", icon: <FaFolderOpen className="h-4 w-4" /> },
+    { label: "项目招募", href: "/school/projects", icon: <FaClipboardCheck className="h-4 w-4" /> },
+    { label: "决策报告", href: "/school/analytics", icon: <FaCalendarAlt className="h-4 w-4" /> },
+    { label: "设置", href: "/school/settings", icon: <FaCog className="h-4 w-4" /> },
+    { label: "校企合作", href: "/school/partnerships", icon: <FaComments className="h-4 w-4" /> },
   ],
 };
 
@@ -82,7 +82,7 @@ export function LmsSidebar({ role }: { role?: PlatformRole }) {
         className="mt-4 flex items-center gap-3 rounded-[14px] border border-white/10 bg-white/5 px-4 py-3 text-left text-[13px] font-medium text-white/85 hover:bg-white/10 hover:text-white"
       >
         <FaSignOutAlt className="h-4 w-4" />
-        <span>Log Out</span>
+        <span>退出登录</span>
       </button>
       </div>
     </aside>

@@ -52,7 +52,7 @@ export function QuantumActivateButton({
         />
       ))}
       <span className="relative z-[1] drop-shadow-[0_0_12px_rgba(34,211,238,0.6)]">
-        {loading ? "SYNC…" : "ACTIVATE PHASE"}
+        {loading ? "同步中…" : "激活阶段"}
       </span>
       <span className="relative z-[1] mt-1 block text-center font-quantum text-[10px] font-normal normal-case tracking-normal text-white/55">
         提交并推进剧情

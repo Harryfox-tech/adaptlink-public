@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 export type CloudWord = { word: string; size: number; tone: "good" | "warn" | "neutral" };
 
 const tabs = [
-  { id: "good", label: "Advantage Tags" },
-  { id: "warn", label: "To Be Improved" },
-  { id: "neutral", label: "Suggestion from" },
+  { id: "good", label: "优势标签" },
+  { id: "warn", label: "待提升" },
+  { id: "neutral", label: "建议方向" },
 ] as const;
 
 export function QuantumWordCloud({ words }: { words: CloudWord[] }) {
@@ -19,7 +19,7 @@ export function QuantumWordCloud({ words }: { words: CloudWord[] }) {
     <div className="quantum-glass-texture relative overflow-hidden rounded-[18px] border border-white/10 bg-slate-950/45 p-4 backdrop-blur-xl">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_70%_20%,rgba(34,211,238,0.10),transparent_55%)]" />
       <div className="relative z-[1]">
-        <p className="mb-3 font-qdisplay text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">Word Cloud</p>
+        <p className="mb-3 font-qdisplay text-[11px] font-semibold tracking-[0.18em] text-white/70">能力词云</p>
         <div className="mb-4 inline-flex rounded-full border border-white/10 bg-black/25 p-1">
           {tabs.map((t) => (
             <button

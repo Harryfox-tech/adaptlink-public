@@ -45,7 +45,7 @@ export function WelcomeCard({
   }, []);
 
   const displayName = me?.user?.display_name || "欢迎回来";
-  const resolvedTitle = title ?? `Hello ${displayName}!`;
+  const resolvedTitle = title ?? `你好，${displayName}！`;
   const resolvedDesc =
     description ??
     (role === "student"
@@ -53,7 +53,7 @@ export function WelcomeCard({
       : role === "enterprise"
         ? "今天可以从岗位建模、漏斗预警与候选人池三件事开始。"
         : "今天可以从供需诊断、课程优化与项目招募三件事开始。");
-  const resolvedCtaLabel = ctaLabel ?? "review it";
+  const resolvedCtaLabel = ctaLabel ?? "立即查看";
   const resolvedCtaHref = ctaHref ?? (role === "student" ? "/student/applications" : role === "enterprise" ? "/enterprise/jobs" : "/school/students");
 
   return (

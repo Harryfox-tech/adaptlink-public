@@ -83,7 +83,7 @@ export function GaugeBoard({ metrics, embedded = false }: { metrics: DashboardMe
   const content = (
     <>
       <CardHeader className="pb-2">
-        <CardTitle className="font-qdisplay text-base">Real-time Simulation Metrics Dashboard</CardTitle>
+        <CardTitle className="font-qdisplay text-base">实时模拟指标</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-2">

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { labelChatStatus } from "@/lib/ui-labels";
 
 export default function StudentAssistantPage() {
   const { messages, input, handleInputChange, handleSubmit, status, error } = useChat({
@@ -18,10 +19,10 @@ export default function StudentAssistantPage() {
       <section className="relative mb-6 space-y-3 border-b border-white/10 pb-10">
         <h1 className="text-4xl font-semibold tracking-tight text-white">AI 求职助手</h1>
         <p className="text-[14px] leading-[22px] text-white/65">
-          基于 Vercel AI SDK 的对话式助手，支持简历优化、模拟问答和岗位匹配建议。
+          对话式求职助手，支持简历优化、模拟问答和岗位匹配建议。
         </p>
         <div className="flex flex-wrap gap-2">
-          <Badge>Vercel AI SDK</Badge>
+          <Badge>智能对话</Badge>
           <Badge>场景化问答</Badge>
           <Badge>行动建议</Badge>
         </div>
@@ -75,7 +76,7 @@ export default function StudentAssistantPage() {
                 {status === "streaming" ? "生成中..." : "发送给助手"}
               </Button>
               {error ? <p className="text-sm text-rose-300">请求失败：{error.message}</p> : null}
-              <p className="text-xs text-white/55">当前状态：{status}</p>
+              <p className="text-xs text-white/55">当前状态：{labelChatStatus(status)}</p>
             </form>
           </CardContent>
         </Card>

@@ -23,42 +23,28 @@ export default async function StudentDashboardPage() {
   const tai = clamp01(parseFirstNumber(dashboard.metrics?.[0]?.value ?? "85.5"));
 
   const radarLeft = [
-    { subject: "Comm", score: clamp01(parseFirstNumber(dashboard.metrics?.[0]?.value ?? "84.6")) },
-    { subject: "Logic", score: clamp01(parseFirstNumber(dashboard.metrics?.[2]?.value ?? "78")) },
-    { subject: "Job-fit", score: clamp01(parseFirstNumber(dashboard.metrics?.[2]?.value ?? "78")) },
-    { subject: "Tech", score: clamp01(parseFirstNumber(dashboard.metrics?.[1]?.value ?? "27") * 2.8) },
-    { subject: "Growth", score: clamp01(parseFirstNumber(dashboard.metrics?.[3]?.value ?? "4") * 18) },
+    { subject: "沟通", score: clamp01(parseFirstNumber(dashboard.metrics?.[0]?.value ?? "84.6")) },
+    { subject: "逻辑", score: clamp01(parseFirstNumber(dashboard.metrics?.[2]?.value ?? "78")) },
+    { subject: "岗位匹配", score: clamp01(parseFirstNumber(dashboard.metrics?.[2]?.value ?? "78")) },
+    { subject: "技术", score: clamp01(parseFirstNumber(dashboard.metrics?.[1]?.value ?? "27") * 2.8) },
+    { subject: "成长", score: clamp01(parseFirstNumber(dashboard.metrics?.[3]?.value ?? "4") * 18) },
   ];
 
   const radarRight = [
-    { subject: "Collab", score: clamp01(parseFirstNumber(dashboard.metrics?.[0]?.value ?? "84.6") - 6) },
-    { subject: "Comms", score: clamp01(parseFirstNumber(dashboard.metrics?.[0]?.value ?? "84.6") - 2) },
-    { subject: "Cop", score: clamp01(parseFirstNumber(dashboard.metrics?.[2]?.value ?? "78") - 1) },
-    { subject: "Adapt", score: clamp01(parseFirstNumber(dashboard.metrics?.[1]?.value ?? "27") * 2.4) },
-    { subject: "Job-fit", score: clamp01(parseFirstNumber(dashboard.metrics?.[2]?.value ?? "78")) },
+    { subject: "协作", score: clamp01(parseFirstNumber(dashboard.metrics?.[0]?.value ?? "84.6") - 6) },
+    { subject: "表达", score: clamp01(parseFirstNumber(dashboard.metrics?.[0]?.value ?? "84.6") - 2) },
+    { subject: "抗压", score: clamp01(parseFirstNumber(dashboard.metrics?.[2]?.value ?? "78") - 1) },
+    { subject: "适应", score: clamp01(parseFirstNumber(dashboard.metrics?.[1]?.value ?? "27") * 2.4) },
+    { subject: "岗位匹配", score: clamp01(parseFirstNumber(dashboard.metrics?.[2]?.value ?? "78")) },
   ];
 
   return (
     <NeoCanvas>
       <NeoStagger>
-      <NeoItem className="mb-5 flex items-center justify-between">
+      <NeoItem className="mb-5">
         <div className="space-y-1">
-          <div className="text-[36px] font-semibold tracking-tight text-white">Dashboard for student</div>
-          <div className="text-[12px] text-white/55">AI 智能体多维评估 · Glassmorphism · Data Viz</div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 p-1 text-[12px] text-white/70 backdrop-blur-md">
-            <div className="rounded-full bg-white/10 px-4 py-2 text-white shadow-[0_0_18px_rgba(34,211,238,0.18)]">学生</div>
-            <div className="px-4 py-2 hover:text-white">企业</div>
-            <div className="px-4 py-2 hover:text-white">高校</div>
-          </div>
-          <button
-            type="button"
-            className="rounded-full border border-white/10 bg-white/5 px-5 py-2 text-[13px] font-medium text-white/80 backdrop-blur-md shadow-[0_0_15px_rgba(45,212,191,0.16)]"
-          >
-            Light mode
-          </button>
+          <div className="text-[36px] font-semibold tracking-tight text-white">学生成长总览</div>
+          <div className="text-[12px] text-white/55">AI 智能体多维评估 · 数据可视化</div>
         </div>
       </NeoItem>
 
@@ -73,10 +59,10 @@ export default async function StudentDashboardPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-[14px] font-semibold text-white">
                 <Sparkles className="h-4 w-4 text-cyan-300" />
-                Performance
+                能力表现
               </div>
               <div className="rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-[12px] font-medium text-white/70">
-                Visualization
+                可视化
               </div>
             </div>
 
@@ -84,8 +70,8 @@ export default async function StudentDashboardPage() {
               <div className="rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 shadow-[0_0_18px_rgba(34,211,238,0.10)]">
                 <NeoAbilityRadar title="综合评估" data={radarLeft} />
               </div>
-              <div className="rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 shadow-[0_0_18px_rgba(168,85,247,0.10)]">
-                <NeoAbilityRadar title="Collaboration" data={radarRight} />
+              <div className="rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 shadow-[0_0_18px_rgba(34,211,238,0.10)]">
+                <NeoAbilityRadar title="协作能力" data={radarRight} />
               </div>
             </div>
 
@@ -142,9 +128,9 @@ export default async function StudentDashboardPage() {
             <NeoItem>
               <GlassCard className="px-6 py-5 neo-hover-float">
               <div className="flex items-center justify-between">
-                <div className="text-[14px] font-semibold text-white">AI Actionable Report</div>
+                <div className="text-[14px] font-semibold text-white">AI 可执行报告</div>
                 <div className="rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-[12px] font-medium text-white/70">
-                  AI interactive
+                  AI 交互
                 </div>
               </div>
               <div className="mt-4 rounded-[18px] border border-white/10 bg-white/5 p-4 text-[12px] leading-[18px] text-white/65">
@@ -182,9 +168,9 @@ export default async function StudentDashboardPage() {
             <NeoItem>
               <GlassCard className="px-6 py-5 neo-hover-float">
               <div className="flex items-center justify-between">
-                <div className="text-[14px] font-semibold text-white">Next Steps</div>
+                <div className="text-[14px] font-semibold text-white">下一步行动</div>
                 <div className="rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-[12px] font-medium text-white/70">
-                  Today
+                  今日
                 </div>
               </div>
 
@@ -232,7 +218,7 @@ export default async function StudentDashboardPage() {
             <div className="flex items-center justify-between">
               <div className="text-[14px] font-semibold text-white">今日行动路线图</div>
               <div className="rounded-[10px] border border-white/10 bg-white/5 px-3 py-2 text-[12px] font-medium text-white/70">
-                Today
+                今日
               </div>
             </div>
 
@@ -290,7 +276,7 @@ export default async function StudentDashboardPage() {
             <div className="flex items-center justify-between">
               <div className="text-[14px] font-semibold text-white">个性化岗位推荐</div>
               <Link href="/student/recommendations" className="text-[12px] font-semibold text-cyan-300 hover:text-cyan-200">
-                See all
+                查看全部
               </Link>
             </div>
 
@@ -298,17 +284,17 @@ export default async function StudentDashboardPage() {
               {[
                 {
                   title: "增长运营实习生",
-                  reason: "Matches your Logic and Job Understanding",
+                  reason: "匹配你的逻辑与岗位理解",
                   score: 49.8,
                 },
                 {
                   title: "产品运营专员",
-                  reason: "Matches your Collaboration and Communication",
+                  reason: "匹配你的协作与沟通能力",
                   score: 35.0,
                 },
                 {
                   title: "数据运营助理",
-                  reason: "Strong fit for your Tech Adapt & Analysis",
+                  reason: "契合技术适应与分析能力",
                   score: 44.0,
                 },
               ].map((job) => (
@@ -319,7 +305,7 @@ export default async function StudentDashboardPage() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-emerald-500/12 text-emerald-200 ring-1 ring-emerald-400/20">
-                      <span className="text-[12px] font-black">AI</span>
+                      <span className="text-[12px] font-black">智</span>
                     </div>
                     <div>
                       <div className="text-[12px] font-semibold text-white/85">{job.title}</div>
@@ -328,7 +314,7 @@ export default async function StudentDashboardPage() {
                   </div>
                   <div className="text-right">
                     <div className="text-[16px] font-semibold text-emerald-300">{job.score.toFixed(1)}</div>
-                    <div className="text-[10px] text-white/45">Match score</div>
+                    <div className="text-[10px] text-white/45">匹配分</div>
                   </div>
                 </Link>
               ))}

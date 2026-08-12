@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME } from "@/lib/auth-client";
+import { labelSimulationType, labelTrend, infoBadgeClass, strengthBadgeClass, warnBadgeClass } from "@/lib/ui-labels";
 
 function suggestInterviewQuestions(riskFlags: string[]) {
   const base = ["请举例说明你如何在资源受限情况下推进任务落地。", "当团队意见冲突时，你如何协调并达成一致？"];
@@ -63,7 +64,7 @@ export default async function EnterpriseCandidateDetailPage({
               <p className="mb-2 text-xs text-muted-foreground">优势标签</p>
               <div className="flex flex-wrap gap-2">
                 {detail.strengths.map((item) => (
-                  <Badge key={item} className="bg-emerald-100 text-emerald-700">
+                  <Badge key={item} className={strengthBadgeClass}>
                     {item}
                   </Badge>
                 ))}
@@ -72,9 +73,9 @@ export default async function EnterpriseCandidateDetailPage({
             <div>
               <p className="mb-2 text-xs text-muted-foreground">风险提示</p>
               <div className="flex flex-wrap gap-2">
-                {detail.riskFlags.length === 0 ? <Badge className="bg-emerald-100 text-emerald-700">低风险</Badge> : null}
+                {detail.riskFlags.length === 0 ? <Badge className={strengthBadgeClass}>低风险</Badge> : null}
                 {detail.riskFlags.map((item) => (
-                  <Badge key={item} className="bg-amber-100 text-amber-700">
+                  <Badge key={item} className={warnBadgeClass}>
                     {item}
                   </Badge>
                 ))}
@@ -103,7 +104,7 @@ export default async function EnterpriseCandidateDetailPage({
                   <TableRow key={item.abilityKey}>
                     <TableCell>{item.abilityLabel}</TableCell>
                     <TableCell>{item.score}</TableCell>
-                    <TableCell>{item.trend}</TableCell>
+                    <TableCell>{labelTrend(item.trend)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -172,7 +173,7 @@ export default async function EnterpriseCandidateDetailPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Session</TableHead>
+                <TableHead>会话 ID</TableHead>
                 <TableHead>类型</TableHead>
                 <TableHead>得分</TableHead>
                 <TableHead>摘要</TableHead>
@@ -183,7 +184,7 @@ export default async function EnterpriseCandidateDetailPage({
               {detail.latestSimulations.map((item) => (
                 <TableRow key={item.sessionId}>
                   <TableCell>{item.sessionId}</TableCell>
-                  <TableCell>{item.simulationType}</TableCell>
+                  <TableCell>{labelSimulationType(item.simulationType)}</TableCell>
                   <TableCell>{item.overallScore}</TableCell>
                   <TableCell>{item.summary}</TableCell>
                   <TableCell>{item.createdAt}</TableCell>
@@ -203,17 +204,17 @@ export default async function EnterpriseCandidateDetailPage({
             <p className="text-sm text-muted-foreground">该候选人暂无完整投递证据包。</p>
           ) : (
             detail.applicationPackages.map((pack) => (
-              <div key={pack.applicationId} className="space-y-2 rounded-lg border border-[#dce7fb] p-3 text-sm">
+              <div key={pack.applicationId} className="space-y-2 rounded-[16px] border border-white/10 bg-white/[0.04] p-3 text-sm backdrop-blur-md">
                 <div className="flex flex-wrap gap-2">
-                  <Badge>{pack.applicationId}</Badge>
-                  <Badge className="bg-sky-100 text-sky-700">{pack.jobTitle}</Badge>
-                  <Badge className="bg-emerald-100 text-emerald-700">简历匹配 {pack.resumeAnalysis.analysis.fitScore}</Badge>
-                  <Badge className="bg-amber-100 text-amber-700">他测 {pack.assessmentResult.overallScore}</Badge>
+                  <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">{pack.applicationId}</Badge>
+                  <Badge className={infoBadgeClass}>{pack.jobTitle}</Badge>
+                  <Badge className={strengthBadgeClass}>简历匹配 {pack.resumeAnalysis.analysis.fitScore}</Badge>
+                  <Badge className={warnBadgeClass}>他测 {pack.assessmentResult.overallScore}</Badge>
                 </div>
-                <p className="text-muted-foreground">{pack.resumeAnalysis.analysis.fitSummary}</p>
-                <p>简历文件：{pack.resumeName}</p>
-                <p>他测结论：{pack.assessmentResult.summary}</p>
-                <p>历史模拟条数：{pack.simulationDigest.length}</p>
+                <p className="font-quantum text-white/60">{pack.resumeAnalysis.analysis.fitSummary}</p>
+                <p className="font-quantum text-white/70">简历文件：{pack.resumeName}</p>
+                <p className="font-quantum text-white/70">他测结论：{pack.assessmentResult.summary}</p>
+                <p className="font-quantum text-white/70">历史模拟条数：{pack.simulationDigest.length}</p>
               </div>
             ))
           )}

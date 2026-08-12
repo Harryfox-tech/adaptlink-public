@@ -12,18 +12,18 @@ export type UpcomingEvent = {
 
 const defaultEvents: UpcomingEvent[] = [
   {
-    title: 'The main event in your life "Robot Fest" will coming soon in...',
-    meta: "14 December 2023  12.00 pm",
+    title: "完成今日简历解析与岗位匹配",
+    meta: "建议优先处理",
   },
   {
-    title: "Webinar of new tools in Minecraft",
-    meta: "21 December 2023  11.00 pm",
+    title: "查看模拟训练反馈与复盘",
+    meta: "成长 / 求职模拟",
   },
 ];
 
 export function UpcomingEventsCard({
-  title = "Upcoming events",
-  actionLabel = "See all",
+  title = "重点提醒",
+  actionLabel = "查看全部",
   actionHref = "#",
   events = defaultEvents,
 }: {

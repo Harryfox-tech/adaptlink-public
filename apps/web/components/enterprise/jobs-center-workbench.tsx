@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
+import { labelEngine } from "@/lib/ui-labels";
 
 type ProgressMeta = {
   active: boolean;
@@ -216,7 +217,7 @@ export function EnterpriseJobsCenterWorkbench({
           {summary ? (
             <div className="space-y-2 rounded-[16px] border border-white/10 bg-white/[0.04] p-3 text-sm backdrop-blur-md">
               <div className="flex flex-wrap gap-2">
-                {engine ? <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">引擎: {engine}</Badge> : null}
+                {engine ? <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">引擎: {labelEngine(engine)}</Badge> : null}
                 {saved !== null ? <Badge className="border border-white/10 bg-white/5 font-quantum text-white/70">数据库: {saved ? "已落库" : "不可用"}</Badge> : null}
               </div>
               <p className="font-quantum text-white/60">{summary}</p>
@@ -227,7 +228,7 @@ export function EnterpriseJobsCenterWorkbench({
           ) : null}
 
           {hint ? <p className="font-quantum text-sm text-white/55">{hint}</p> : null}
-          {error ? <p className="text-sm text-rose-600">{error}</p> : null}
+          {error ? <p className="text-sm text-rose-300">{error}</p> : null}
         </CardContent>
       </Card>
 

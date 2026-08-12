@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { PlatformRole } from "@/lib/types";
 import { isTrialGatedRole } from "@/lib/trial-access";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { AuthAlert } from "@/components/auth/auth-alert";
+import { AuthShell } from "@/components/auth/auth-shell";
+import { AuthInput, FormField } from "@/components/auth/form-field";
+import { RoleSelector } from "@/components/auth/role-selector";
 import { Button } from "@/components/ui/button";
 
 const roleOptions: { key: PlatformRole; label: string; hint: string; defaultPath: string }[] = [
@@ -19,8 +21,8 @@ export default function LoginPage() {
   return (
     <React.Suspense
       fallback={
-        <main className="mx-auto flex min-h-dvh max-w-6xl items-center justify-center px-4 py-10">
-          <div className="text-sm text-muted-foreground">加载中…</div>
+        <main className="flex min-h-[100dvh] items-center justify-center px-4">
+          <p className="text-sm text-white/50">加载中…</p>
         </main>
       }
     >
@@ -78,126 +80,107 @@ function LoginPageInner() {
       setRedirecting(true);
       router.replace(next || roleMeta.defaultPath);
       router.refresh();
-    } catch (err: any) {
-      setError(err?.message || "登录失败");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "登录失败");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-6xl items-center justify-center px-4 py-10">
-      <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="hidden md:flex md:flex-col md:justify-center">
-          <div className="reveal-in max-w-md">
-            <div className="text-sm font-semibold text-[#2d4cc8]">Adaptlink 平台</div>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight">登录到对应端后台</h1>
-            <p className="mt-3 text-sm text-muted-foreground">
-              请选择你要登录的端。只有该端注册的账号才能登录该端；三端账号数据分开入库。
-            </p>
-          </div>
+    <AuthShell
+      title="登录到对应端后台"
+      description="请选择你要登录的端。只有该端注册的账号才能登录该端；三端账号数据分开入库。"
+    >
+      <div className="space-y-5">
+        <div>
+          <p className="font-qdisplay text-2xl font-semibold tracking-tight text-white">登录</p>
+          <p className="mt-1 text-sm text-white/55">
+            当前：{roleMeta.label} · {roleMeta.hint}
+          </p>
         </div>
 
-        <Card className="reveal-in border-[#dce7fb] shadow-sm">
-          <CardHeader>
-            <CardTitle>登录</CardTitle>
-            <CardDescription>
-              当前：{roleMeta.label}（{roleMeta.hint}）
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4 grid grid-cols-3 gap-2">
-              {roleOptions.map((item) => (
-                <Button
-                  key={item.key}
-                  type="button"
-                  variant={role === item.key ? "default" : "outline"}
-                  onClick={() => setRole(item.key)}
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </div>
+        <RoleSelector value={role} onChange={setRole} />
 
-            <form onSubmit={onSubmit} className="space-y-3">
-              <div className="space-y-1">
-                <div className="text-sm font-medium">邮箱</div>
-                <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" autoComplete="email" />
-              </div>
-              <div className="space-y-1">
-                <div className="text-sm font-medium">密码</div>
-                <Input
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  type="password"
-                  placeholder="至少 6 位"
-                  autoComplete="current-password"
-                />
-              </div>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <FormField label="邮箱">
+            <AuthInput
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+              autoComplete="email"
+            />
+          </FormField>
 
-              {isTrialGatedRole(role) ? (
-                <div className="space-y-1">
-                  <div className="text-sm font-medium">开发者密钥</div>
-                  <Input
-                    value={developerKey}
-                    onChange={(e) => setDeveloperKey(e.target.value)}
-                    type="password"
-                    placeholder="试商用密钥（高校端/企业端必填）"
-                    autoComplete="off"
-                  />
-                  <p className="text-xs text-muted-foreground">本次试用中，高校端与企业端需凭开发者密钥登录。</p>
-                </div>
-              ) : null}
+          <FormField label="密码">
+            <AuthInput
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              placeholder="至少 6 位"
+              autoComplete="current-password"
+            />
+          </FormField>
 
-              {role === "enterprise" ? (
-                <div className="space-y-1">
-                  <div className="text-sm font-medium">Company ID（公司编号）</div>
-                  <Input
-                    value={companyId}
-                    onChange={(e) => setCompanyId(e.target.value)}
-                    placeholder="与注册企业账号时绑定的 company id 一致"
-                    autoComplete="off"
-                    className="font-mono text-sm"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    还没有公司编号？{" "}
-                    <Link className="font-medium text-[#2d4cc8] hover:underline" href="/register/company">
-                      先注册公司
-                    </Link>
-                  </p>
-                </div>
-              ) : null}
+          {isTrialGatedRole(role) ? (
+            <FormField label="开发者密钥" hint="高校端与企业端需凭开发者密钥登录。">
+              <AuthInput
+                value={developerKey}
+                onChange={(e) => setDeveloperKey(e.target.value)}
+                type="password"
+                placeholder="试商用密钥"
+                autoComplete="off"
+              />
+            </FormField>
+          ) : null}
 
-              {error ? <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div> : null}
-              {redirecting ? (
-                <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-                  登录成功，正在跳转至{roleMeta.label}首页…
-                </div>
-              ) : null}
+          {role === "enterprise" ? (
+            <FormField
+              label="Company ID"
+              hint={
+                <>
+                  还没有公司编号？{" "}
+                  <Link className="text-cyan-300 hover:underline" href="/register/company">
+                    先注册公司
+                  </Link>
+                </>
+              }
+            >
+              <AuthInput
+                value={companyId}
+                onChange={(e) => setCompanyId(e.target.value)}
+                placeholder="与注册企业账号时绑定的 company id"
+                autoComplete="off"
+                className="font-quantum text-sm"
+              />
+            </FormField>
+          ) : null}
 
-              <Button disabled={loading || redirecting} className="w-full" type="submit">
-                {redirecting ? "跳转中..." : loading ? "登录中..." : "登录"}
-              </Button>
+          {error ? <AuthAlert tone="error">{error}</AuthAlert> : null}
+          {redirecting ? (
+            <AuthAlert tone="success">登录成功，正在跳转至{roleMeta.label}首页…</AuthAlert>
+          ) : null}
 
-              <div className="text-sm text-muted-foreground">
-                还没有账号？{" "}
-                <Link className="font-medium text-[#2d4cc8] hover:underline" href={`/register?role=${role}`}>
-                  去注册
+          <Button disabled={loading || redirecting} className="w-full active:scale-[0.98]" type="submit">
+            {redirecting ? "跳转中..." : loading ? "登录中..." : "登录"}
+          </Button>
+
+          <p className="text-center text-sm text-white/50">
+            还没有账号？{" "}
+            <Link className="font-medium text-cyan-300 hover:text-cyan-200" href={`/register?role=${role}`}>
+              去注册
+            </Link>
+            {role === "enterprise" ? (
+              <>
+                {" · "}
+                <Link className="font-medium text-cyan-300 hover:text-cyan-200" href="/register/company">
+                  注册公司
                 </Link>
-                {role === "enterprise" ? (
-                  <>
-                    {" · "}
-                    <Link className="font-medium text-[#2d4cc8] hover:underline" href="/register/company">
-                      注册公司（获取 company id）
-                    </Link>
-                  </>
-                ) : null}
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+              </>
+            ) : null}
+          </p>
+        </form>
       </div>
-    </main>
+    </AuthShell>
   );
 }
-

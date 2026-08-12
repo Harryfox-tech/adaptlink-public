@@ -1239,13 +1239,26 @@ export async function optimizeResumeWithAgent(input: {
   iterations?: number;
   playerStrategy?: "conservative" | "aggressive" | "random";
   scoreTarget?: number;
+  stream?: boolean;
+  onTrace?: (line: string) => void;
+  onTurn?: (event: import("@/components/simulator/auto-run-progress-panel").AutoRunTurnEvent) => void;
 }): Promise<import("@/lib/types").ResumeOptimizeResult> {
+  const useStream = input.stream !== false;
   const res = await fetch("/api/resume/optimize", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
+    body: JSON.stringify({ ...input, stream: useStream }),
     cache: "no-store",
   });
+
+  if (useStream && res.headers.get("content-type")?.includes("text/event-stream")) {
+    const { consumeResumeOptimizeSse } = await import("@/lib/simulation-agent/auto-run-stream-client");
+    return consumeResumeOptimizeSse(res, {
+      onTrace: input.onTrace,
+      onTurn: input.onTurn,
+    });
+  }
+
   if (!res.ok) {
     const err = (await res.json()) as { error?: string };
     throw new Error(err.error ?? "简历优化失败");

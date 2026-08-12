@@ -117,7 +117,7 @@ export function AppSidebar({ role, pathname }: { role: PlatformRole; pathname: s
             : "border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white",
         )}
       >
-        {loggingOut ? "退出中..." : "Log out"}
+        {loggingOut ? "退出中..." : "退出登录"}
       </button>
       </div>
     </aside>

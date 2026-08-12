@@ -54,12 +54,12 @@ export function NeoWelcomeCard({
           已完成多智能体评估。继续从简历解析、模拟训练与投递进度推进下一步。
         </div>
         <Link href={ctaHref} className="mt-2 inline-flex text-[12px] font-medium text-cyan-300 underline underline-offset-4 hover:text-cyan-200">
-          Next Steps →
+          下一步 →
         </Link>
       </div>
 
       <div className="relative h-[120px] w-[320px] overflow-hidden rounded-[18px] bg-slate-950/40">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(220px_circle_at_70%_20%,rgba(34,211,238,0.18),transparent_60%),radial-gradient(220px_circle_at_30%_80%,rgba(168,85,247,0.18),transparent_60%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(220px_circle_at_70%_20%,rgba(34,211,238,0.18),transparent_60%),radial-gradient(220px_circle_at_30%_80%,rgba(14,165,233,0.14),transparent_60%)]" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950/35 via-transparent to-slate-950/0" />
         <div className="absolute right-0 top-0 h-full w-full">
           <Image

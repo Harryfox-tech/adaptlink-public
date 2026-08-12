@@ -10,8 +10,8 @@ export function AbilityRadarPlaceholder({ abilities }: { abilities: AbilityDimen
   return (
     <Card className="quantum-scanline quantum-glass-texture overflow-hidden border-cyan-500/25 bg-slate-950/45 backdrop-blur-xl">
       <CardHeader className="border-b border-white/[0.06] pb-3">
-        <CardTitle className="font-qdisplay text-base">CODEX SYNERGY RADAR</CardTitle>
-        <p className="font-quantum text-xs text-white/45">多维能力画像（Recharts Radar）</p>
+        <CardTitle className="font-qdisplay text-base">能力协同雷达</CardTitle>
+        <p className="font-quantum text-xs text-white/45">多维能力画像</p>
       </CardHeader>
       <CardContent className="pt-4">
         <div className="h-72 w-full">

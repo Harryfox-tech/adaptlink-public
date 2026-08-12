@@ -13,16 +13,16 @@ export type CalendarItem = {
 };
 
 const defaultItems: CalendarItem[] = [
-  { time: "10:00", title: "Electronics lesson", meta: "9:45-10:30, 21 lesson", active: true },
-  { time: "11:00", title: "Electronics lesson", meta: "11:00-11:40, 23 lesson" },
-  { time: "12:00", title: "Robotics lesson", meta: "12:00-12:45, 23 lesson" },
-  { time: "13:00", title: "C++ lesson", meta: "13:45-14:30, 21 lesson" },
+  { time: "10:00", title: "简历解析", meta: "上传并生成分析报告", active: true },
+  { time: "11:00", title: "能力评估", meta: "查看雷达图与指标", },
+  { time: "12:00", title: "成长模拟", meta: "记录训练轨迹", },
+  { time: "13:00", title: "求职模拟", meta: "面试场景对话", },
 ];
 
 export function CalendarCard({
-  title = "Calendar",
-  subtitle = "6 events today",
-  rangeLabel = "Today",
+  title = "日程安排",
+  subtitle = "今日 4 项",
+  rangeLabel = "今日",
   items = defaultItems,
 }: {
   title?: string;

@@ -16,8 +16,8 @@ const defaultItems: LinkedItem[] = [
 ];
 
 export function LinkedTeachersCard({
-  title = "Linked Teachers",
-  actionLabel = "See all",
+  title = "关联导师",
+  actionLabel = "查看全部",
   actionHref = "#",
   items = defaultItems,
 }: {

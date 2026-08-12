@@ -7,6 +7,7 @@ import type { LifeMemory, SimulationHistoryItem } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { labelSimulationType } from "@/lib/ui-labels";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export function SimulationHistoryTabs({
@@ -60,7 +61,7 @@ export function SimulationHistoryTabs({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Session</TableHead>
+                    <TableHead>会话 ID</TableHead>
                     <TableHead>类型</TableHead>
                     <TableHead>场景</TableHead>
                     <TableHead>得分</TableHead>
@@ -73,7 +74,7 @@ export function SimulationHistoryTabs({
                     <TableRow key={item.sessionId}>
                       <TableCell>{item.sessionId}</TableCell>
                       <TableCell>
-                        <Badge>{item.simulationType}</Badge>
+                        <Badge>{labelSimulationType(item.simulationType)}</Badge>
                       </TableCell>
                       <TableCell>{item.scene}</TableCell>
                       <TableCell>{item.overallScore}</TableCell>

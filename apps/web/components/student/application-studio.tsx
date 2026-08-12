@@ -11,6 +11,7 @@ import {
   talkSimulationEpisode,
 } from "@/lib/api/client";
 import { AssessmentOutcome, ResumeAnalysis, SimulationEpisode, StudentApplication, TargetProfile } from "@/lib/types";
+import { labelEpisodeStatus, labelTrend } from "@/lib/ui-labels";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -549,7 +550,7 @@ export function ApplicationStudio({
                   <Badge className="border border-white/10 bg-white/10 text-white">
                     阶段 {episode.currentStage}/{episode.totalStages}
                   </Badge>
-                  <Badge className="border border-white/10 bg-white/5 text-white/70">{episode.status}</Badge>
+                  <Badge className="border border-white/10 bg-white/5 text-white/70">{labelEpisodeStatus(episode.status)}</Badge>
                   {episode.currentEvent ? <Badge className="border border-white/10 bg-white/5 text-white/70">{episode.currentEvent.npcRole}</Badge> : null}
                 </div>
                 <Progress value={(episode.currentStage / episode.totalStages) * 100} className="bg-white/10" />
@@ -643,7 +644,7 @@ export function ApplicationStudio({
                       <div className="flex items-center justify-between text-xs text-white/55">
                         <span>{item.label}</span>
                         <span>
-                          {item.score}/100 · {item.trend}
+                          {item.score}/100 · {labelTrend(item.trend)}
                         </span>
                       </div>
                       <Progress value={item.score} className="bg-white/10" />

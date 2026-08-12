@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { labelEpisodeStatus, labelSimulationType } from "@/lib/ui-labels";
 
 type ProgressMeta = {
   active: boolean;
@@ -106,6 +107,16 @@ export function StorylineSimulator({
 
   const appendTraceLine = (line: string) => {
     setReasoningTrace((prev) => (prev.includes(line) ? prev : [...prev, line]));
+    const stageText = line
+      .replace(/^\[(Thought|Action|Observation|ReAct|AutoRun)\]\s*/, "")
+      .slice(0, 56);
+    if (stageText) {
+      setProgress((prev) => ({
+        active: true,
+        value: Math.min(92, prev.value + 6),
+        stage: stageText,
+      }));
+    }
   };
 
   const startEpisode = async () => {
@@ -279,7 +290,7 @@ export function StorylineSimulator({
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Agent 模式</span>
             </div>
             <RecalledMemoriesPanel memories={recalledMemories} className="mt-3" />
-            <AgentReasoningPanel trace={reasoningTrace} engine={agentEngine} className="mt-3" />
+            <AgentReasoningPanel trace={reasoningTrace} engine={agentEngine} className="mt-3" live={loading} />
           </div>
           <div className="min-h-[200px] w-full">
             <QuantumTalentHeroPanel imageSrc="/pic/3.png" />
@@ -362,7 +373,7 @@ export function StorylineSimulator({
                     {episode.dialogue.slice(-4).map((msg, index) => (
                       <div key={`${msg.timestamp}-${index}`} className={`rounded-2xl p-3 ${msg.speaker === "npc" ? "bg-white/5 text-white" : "bg-cyan-500/10 text-cyan-100"}`}>
                         <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/40">
-                          <span>{msg.speaker === "npc" ? "NPC" : "你"}</span>
+                          <span>{msg.speaker === "npc" ? "角色" : "你"}</span>
                           <span>•</span>
                           <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                         </div>
@@ -454,8 +465,8 @@ export function StorylineSimulator({
               episodeId={episode.episodeId}
             />
             <div className="flex flex-wrap items-center gap-2 px-0.5">
-              <Badge className="font-quantum text-[10px]">{episode.status}</Badge>
-              <Badge className="font-quantum text-[10px]">{simulationType}</Badge>
+              <Badge className="font-quantum text-[10px]">{labelEpisodeStatus(episode.status)}</Badge>
+              <Badge className="font-quantum text-[10px]">{labelSimulationType(simulationType)}</Badge>
               {episode.currentEvent ? (
                 <Badge className="border-white/15 bg-white/10 font-quantum text-[10px]">{episode.currentEvent.npcRole}</Badge>
               ) : null}
@@ -489,7 +500,7 @@ export function StorylineSimulator({
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <CardTitle className="font-qdisplay text-base">实时状态</CardTitle>
-                    <p className="mt-1 font-quantum text-[10px] text-white/45">Metrics · Timeline · Rhythm</p>
+                    <p className="mt-1 font-quantum text-[10px] text-white/45">指标 · 时间线 · 节奏</p>
                   </div>
                   <Button type="button" variant="outline" size="sm" className="shrink-0 font-quantum text-[11px]" onClick={() => void copyFramework()}>
                     {copied ? "已复制" : "复制回答框架"}

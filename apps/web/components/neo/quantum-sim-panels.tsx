@@ -43,7 +43,7 @@ export function QuantumDataBanner({
       <div className="pl-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <p className="font-qdisplay bg-gradient-to-r from-cyan-200 via-white to-violet-200 bg-clip-text text-lg font-bold uppercase tracking-[0.12em] text-transparent md:text-xl">
-            Quantum Career Sim-Pod
+            量子职业模拟舱
           </p>
           <div className="flex items-center gap-1.5 pt-1">
             {Array.from({ length: totalStages }).map((_, i) => (
@@ -112,7 +112,7 @@ export function QuantumStoryConsole({
         "quantum-scanline quantum-glass-texture relative overflow-hidden rounded-[20px] border border-cyan-500/30 bg-slate-950/45 p-5 shadow-[0_0_40px_rgba(34,211,238,0.1)] backdrop-blur-xl",
       )}
     >
-      <p className="font-quantum text-[10px] uppercase tracking-[0.35em] text-cyan-400/80">剧情全息显示 · STORY CONSOLE</p>
+      <p className="font-quantum text-[10px] uppercase tracking-[0.35em] text-cyan-400/80">剧情全息显示</p>
 
       {situationText ? (
         <div className="mt-4 rounded-[14px] border border-white/[0.08] bg-black/30 p-4">
@@ -153,7 +153,7 @@ export function QuantumStoryConsole({
                 <span className="h-8 w-[2px] rounded-full bg-gradient-to-b from-transparent via-cyan-400/40 to-transparent shadow-[0_0_10px_rgba(34,211,238,0.4)]" />
                 <span className="h-8 w-[2px] rounded-full bg-gradient-to-b from-violet-400/30 to-transparent" />
               </div>
-              <div className="absolute bottom-2 left-2 z-[2] h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.85)]" title="online" />
+              <div className="absolute bottom-2 left-2 z-[2] h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.85)]" title="在线" />
               <Image
                 src={npcImageSrc}
                 alt="数字化点云导师"
@@ -195,7 +195,7 @@ export function QuantumCommandDeck({
   return (
     <div className="relative overflow-hidden rounded-[20px] border border-orange-500/40 bg-slate-950/50 p-5 shadow-[0_0_36px_rgba(249,115,22,0.12)] backdrop-blur-xl">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_20%_0%,rgba(34,211,238,0.08),transparent_55%)]" />
-      <p className="font-quantum text-[10px] uppercase tracking-[0.3em] text-orange-200/70">命令输入台 · COMMAND INPUT</p>
+      <p className="font-quantum text-[10px] uppercase tracking-[0.3em] text-orange-200/70">命令输入台</p>
       {storyChoices.length ? (
         <div className="mb-4 grid gap-3 sm:grid-cols-2">
           {storyChoices.map((choice) => (

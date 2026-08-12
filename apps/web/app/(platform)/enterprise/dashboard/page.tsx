@@ -15,7 +15,7 @@ export default async function EnterpriseDashboardPage() {
   const data = await getEnterpriseDashboardData(token);
 
   return (
-    <LmsCanvas title="Dashboard for enterprise">
+    <LmsCanvas title="企业招聘总览">
       <div className="grid grid-cols-3 gap-5">
         <div className="col-span-2 space-y-5">
           <WelcomeCard role="enterprise" imageSrc="/pic/new1.png" />
@@ -93,7 +93,7 @@ export default async function EnterpriseDashboardPage() {
           <CalendarCard
             title="运营日程"
             subtitle="快捷入口"
-            rangeLabel="Today"
+            rangeLabel="今日"
             items={[
               { time: "10:00", title: "岗位建模", meta: "创建/优化岗位画像", active: true, href: "/enterprise/jobs" },
               { time: "11:00", title: "候选人池", meta: "筛选与解释详情", href: "/enterprise/talent-pool" },

@@ -42,7 +42,7 @@ export function QuantumCompetencyRadar({
         <Cpu className="h-4 w-4 text-cyan-300/90" aria-hidden />
         <div>
           <p className="font-qdisplay text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200/90">实时模拟指标</p>
-          <p className="font-quantum text-[10px] text-white/40">METRICS · LIVE</p>
+          <p className="font-quantum text-[10px] text-white/40">实时数据</p>
         </div>
       </div>
       <div className="relative h-[210px] w-full">
@@ -71,19 +71,19 @@ export function QuantumCompetencyRadar({
       </div>
       <div className="mt-2 grid grid-cols-2 gap-2 border-t border-white/[0.06] pt-3 font-quantum text-[10px] text-white/50 sm:grid-cols-4">
         <div className="text-center">
-          <span className="text-cyan-300/90">CONF</span>
+          <span className="text-cyan-300/90">信心</span>
           <div className="tabular-nums text-white/85">{Math.round(confidence)}</div>
         </div>
         <div className="text-center">
-          <span className="text-orange-300/90">STR</span>
+          <span className="text-orange-300/90">压力</span>
           <div className="tabular-nums text-white/85">{Math.round(pressure)}</div>
         </div>
         <div className="text-center">
-          <span className="text-violet-300/90">NRG</span>
+          <span className="text-violet-300/90">精力</span>
           <div className="tabular-nums text-white/85">{Math.round(energy)}</div>
         </div>
         <div className="text-center">
-          <span className="text-sky-300/90">RDY</span>
+          <span className="text-sky-300/90">准备</span>
           <div className="tabular-nums text-white/85">{Math.round(readiness)}</div>
         </div>
       </div>

@@ -12,7 +12,7 @@ export default async function SchoolDashboardPage() {
   const data = await getSchoolDashboardData();
 
   return (
-    <LmsCanvas title="Dashboard for school">
+    <LmsCanvas title="高校培养诊断总览">
       <div className="grid grid-cols-3 gap-5">
         <div className="col-span-2 space-y-5">
           <WelcomeCard role="school" imageSrc="/pic/new1.png" />
@@ -78,7 +78,7 @@ export default async function SchoolDashboardPage() {
           <CalendarCard
             title="治理/教学日程"
             subtitle="快捷入口"
-            rangeLabel="Today"
+            rangeLabel="今日"
             items={[
               { time: "10:00", title: "学生画像", meta: "分层风险与干预", active: true, href: "/school/students" },
               { time: "11:00", title: "课程分析", meta: "能力映射与优化", href: "/school/curriculum" },
