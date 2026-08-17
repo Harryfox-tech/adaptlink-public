@@ -1,4 +1,5 @@
 import { getStudentDashboard } from "@/lib/api/client";
+import { requireStudentSession } from "@/lib/auth-server";
 import { ResumeInsightPanel } from "@/components/student/resume-insight-panel";
 import { NeoCanvas } from "@/components/neo/neo-canvas";
 import { GlassCard } from "@/components/neo/glass-card";
@@ -19,7 +20,9 @@ function parseFirstNumber(value: string) {
 }
 
 export default async function StudentDashboardPage() {
-  const dashboard = await getStudentDashboard("stu_001");
+  const { studentId, token } = await requireStudentSession();
+  const dashboard = await getStudentDashboard(studentId, token);
+  const hasSimulations = dashboard.metrics?.[1]?.value !== "0";
   const tai = clamp01(parseFirstNumber(dashboard.metrics?.[0]?.value ?? "85.5"));
 
   const radarLeft = [
@@ -279,7 +282,8 @@ export default async function StudentDashboardPage() {
             </div>
 
             <div className="mt-4 space-y-3">
-              {[
+              {hasSimulations ? (
+              [
                 {
                   title: "增长运营实习生",
                   reason: "匹配你的逻辑与岗位理解",
@@ -315,7 +319,12 @@ export default async function StudentDashboardPage() {
                     <div className="text-[10px] text-white/45">匹配分</div>
                   </div>
                 </Link>
-              ))}
+              ))
+              ) : (
+                <p className="rounded-xl border border-dashed border-white/12 px-4 py-6 text-center text-sm text-white/50">
+                  完成求职模拟后，这里会显示与你能力匹配的岗位推荐。
+                </p>
+              )}
             </div>
           </GlassCard>
           </NeoItem>

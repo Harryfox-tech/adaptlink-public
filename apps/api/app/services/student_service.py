@@ -21,31 +21,35 @@ from app.services.application_service import get_latest_resume_snapshot, get_stu
 def get_student_overview(student_id: str) -> StudentOverviewResponse:
     return StudentOverviewResponse(
         user_id=student_id,
-        name="张同学",
-        major="信息管理与信息系统",
-        grade="2023级",
-        overall_score=84.6,
-        focus_areas=["高压沟通", "结构化表达", "业务指标拆解"],
+        name="",
+        major="",
+        grade="",
+        overall_score=0.0,
+        focus_areas=[],
+    )
+
+
+def _empty_dashboard(student_id: str) -> StudentDashboardResponse:
+    return StudentDashboardResponse(
+        student_id=student_id,
+        metrics=[
+            StudentDashboardMetric(title="综合能力得分", value="—", delta="—", hint="完成模拟后生成"),
+            StudentDashboardMetric(title="模拟训练次数", value="0", delta="0", hint="尚未开始训练"),
+            StudentDashboardMetric(title="岗位匹配中位分", value="—", delta="—", hint="完成求职模拟后更新"),
+            StudentDashboardMetric(title="本周行动项", value="0", delta="0", hint="从模拟建议自动生成"),
+        ],
+        today_suggestions=[
+            "开始一次成长模拟，建立能力基线",
+            "在求职模拟中完成一轮高压追问训练",
+            "上传简历并生成首份匹配分析",
+        ],
+        risk_summary="暂无模拟数据。完成成长或求职模拟后，系统将生成个性化诊断与行动建议。",
+        resume_snapshot=get_latest_resume_snapshot(student_id),
     )
 
 
 def _fallback_dashboard(student_id: str) -> StudentDashboardResponse:
-    return StudentDashboardResponse(
-        student_id=student_id,
-        metrics=[
-            StudentDashboardMetric(title="综合能力得分", value="84.6", delta="+3.4", hint="最近2周提升明显"),
-            StudentDashboardMetric(title="模拟训练次数", value="27", delta="+5", hint="成长模拟 14 / 求职模拟 13"),
-            StudentDashboardMetric(title="岗位匹配中位分", value="78", delta="+6", hint="偏向产品运营岗"),
-            StudentDashboardMetric(title="本周行动项", value="4", delta="-1", hint="建议完成 3 项必做训练"),
-        ],
-        today_suggestions=[
-            "完成一次压力面试模拟",
-            "更新项目经历 STAR 描述",
-            "复盘最近一次团队协作事件",
-        ],
-        risk_summary="抗压能力与逻辑分析能力波动较大，建议在求职模拟器中开启高压追问场景训练。",
-        resume_snapshot=get_latest_resume_snapshot(student_id),
-    )
+    return _empty_dashboard(student_id)
 
 
 def _ensure_application_table(conn: psycopg.Connection) -> None:
@@ -89,7 +93,7 @@ def get_student_dashboard(student_id: str) -> StudentDashboardResponse:
                 application_count = int(cur.fetchone()[0])
 
         if simulation_count == 0:
-            return _fallback_dashboard(student_id)
+            return _empty_dashboard(student_id)
 
         return StudentDashboardResponse(
             student_id=student_id,
@@ -115,17 +119,12 @@ def get_student_dashboard(student_id: str) -> StudentDashboardResponse:
         return _fallback_dashboard(student_id)
 
 
+def _empty_applications(student_id: str) -> StudentApplicationsResponse:
+    return StudentApplicationsResponse(student_id=student_id, items=[])
+
+
 def _fallback_applications(student_id: str) -> StudentApplicationsResponse:
-    package_items = get_student_application_items(student_id)
-    return StudentApplicationsResponse(
-        student_id=student_id,
-        items=package_items
-        + [
-            StudentApplicationItem(id="A-1001", job="产品运营专员", company="星澜科技", status="已投递", date="2026-03-12"),
-            StudentApplicationItem(id="A-1002", job="校园市场培训生", company="映河教育", status="面试中", date="2026-03-16"),
-            StudentApplicationItem(id="A-1003", job="数据运营助理", company="云策数据", status="待反馈", date="2026-03-18"),
-        ],
-    )
+    return _empty_applications(student_id)
 
 
 def get_student_applications(student_id: str) -> StudentApplicationsResponse:
@@ -150,7 +149,8 @@ def get_student_applications(student_id: str) -> StudentApplicationsResponse:
                 rows = cur.fetchall()
 
         if not rows:
-            return _fallback_applications(student_id)
+            package_items = get_student_application_items(student_id)
+            return StudentApplicationsResponse(student_id=student_id, items=package_items)
 
         items = [
             StudentApplicationItem(

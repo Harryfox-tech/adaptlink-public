@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { labelEpisodeStatus, labelSimulationType } from "@/lib/ui-labels";
+import { useStudentSession } from "@/components/student/student-session-provider";
 
 type ProgressMeta = {
   active: boolean;
@@ -45,6 +46,7 @@ export function StorylineSimulator({
   simulationType: "growth" | "job";
   defaultTarget: string;
 }) {
+  const { studentId } = useStudentSession();
   const [targetRole, setTargetRole] = useState(defaultTarget);
   const [goalContext, setGoalContext] = useState("");
   const [personalStrength, setPersonalStrength] = useState("");
@@ -135,7 +137,7 @@ export function StorylineSimulator({
         async () => {
           const result = await startSimulationAgent(
             {
-              studentId: "stu_001",
+              studentId,
               simulationType,
               target: targetSummary,
             },

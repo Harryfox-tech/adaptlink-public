@@ -1,8 +1,10 @@
 ﻿from typing import Literal
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 
+from app.api.deps.student_auth import assert_student_access, require_student
+from app.schemas.auth import AuthUser
 from app.schemas.simulation_agent import AgentActRequest, AgentStartRequest, AgentStepResult
 
 from app.schemas.simulations import (
@@ -23,7 +25,7 @@ from app.schemas.simulations import (
     SimulationStartResponse,
 )
 from app.services.ending_engine import evaluate_ending
-from app.services.memory_service import delete_memory, list_memories, retrieve_relevant_memories, store_memory
+from app.services.memory_service import delete_memory, get_memory_student_id, list_memories, retrieve_relevant_memories, store_memory
 from app.services.simulation_episode_service import (
     act_episode,
     get_episode,
@@ -62,7 +64,8 @@ def _agent_step_to_camel(result: AgentStepResult) -> dict:
 
 
 @router.post("/agent/start")
-def simulation_agent_start(payload: AgentStartRequest):
+def simulation_agent_start(payload: AgentStartRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, payload.student_id)
     try:
         result = run_agent_start(payload.student_id, payload.simulation_type, payload.target)
         return _agent_step_to_camel(result)
@@ -86,7 +89,8 @@ def simulation_agent_act(payload: AgentActRequest):
 
 
 @router.post("/agent/start/stream")
-def simulation_agent_start_stream(payload: AgentStartRequest):
+def simulation_agent_start_stream(payload: AgentStartRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, payload.student_id)
     return StreamingResponse(
         run_agent_start_stream(payload.student_id, payload.simulation_type, payload.target),
         media_type="text/event-stream",
@@ -104,7 +108,8 @@ def simulation_agent_act_stream(payload: AgentActRequest):
 
 
 @router.put("/agent-state", response_model=AgentStateResponse)
-def upsert_agent_state(payload: AgentStateUpsertRequest):
+def upsert_agent_state(payload: AgentStateUpsertRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, payload.student_id)
     saved, _reason = save_agent_state(
         episode_id=payload.episode_id,
         student_id=payload.student_id,
@@ -144,12 +149,14 @@ def remove_agent_state(episode_id: str):
 
 
 @router.post("/auto-run", response_model=SimulationAutoRunResponse)
-def simulation_auto_run(payload: SimulationAutoRunRequest):
+def simulation_auto_run(payload: SimulationAutoRunRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, payload.student_id)
     return run_auto_simulation(payload)
 
 
 @router.post("/auto-run/stream")
-def simulation_auto_run_stream(payload: SimulationAutoRunRequest):
+def simulation_auto_run_stream(payload: SimulationAutoRunRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, payload.student_id)
     return StreamingResponse(
         run_auto_simulation_stream(payload),
         media_type="text/event-stream",
@@ -158,7 +165,8 @@ def simulation_auto_run_stream(payload: SimulationAutoRunRequest):
 
 
 @router.post("/run", response_model=SimulationStartResponse)
-def run_simulation(payload: SimulationStartRequest):
+def run_simulation(payload: SimulationStartRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, payload.student_id)
     aggregate, engine, fallback_reason = run_simulation_and_persist(payload)
     return SimulationStartResponse(
         session_id=aggregate.session_id,
@@ -170,7 +178,8 @@ def run_simulation(payload: SimulationStartRequest):
 
 
 @router.post("/episode/start", response_model=SimulationEpisode)
-def simulation_episode_start(payload: EpisodeStartRequest):
+def simulation_episode_start(payload: EpisodeStartRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, payload.student_id)
     return start_episode(payload)
 
 
@@ -199,7 +208,8 @@ def simulation_episode_talk(episode_id: str, payload: EpisodeDialogueRequest):
 
 
 @router.post("/episode/persist")
-def simulation_episode_persist(payload: EpisodePersistRequest):
+def simulation_episode_persist(payload: EpisodePersistRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, payload.episode.student_id)
     persist_agent_episode(
         payload.episode,
         ending_type=payload.ending_type,
@@ -222,7 +232,9 @@ def simulation_check_ending(episode: SimulationEpisode):
 def get_student_memories(
     student_id: str = Query(..., description="Student id"),
     limit: int = Query(default=20, ge=1, le=100),
+    user: AuthUser = Depends(require_student),
 ):
+    assert_student_access(user, student_id)
     rows = list_memories(student_id=student_id, limit=limit)
     return LifeMemoryListResponse(
         student_id=student_id,
@@ -245,13 +257,16 @@ def recall_memories(
     student_id: str = Query(...),
     limit: int = Query(default=3, ge=1, le=10),
     context: str | None = Query(default=None),
+    user: AuthUser = Depends(require_student),
 ):
+    assert_student_access(user, student_id)
     memories = retrieve_relevant_memories(student_id=student_id, limit=limit, context=context)
     return {"student_id": student_id, "items": [m.model_dump() for m in memories]}
 
 
 @router.post("/memories", response_model=MemoryCreateResponse)
-def create_memory(payload: MemoryCreateRequest):
+def create_memory(payload: MemoryCreateRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, payload.student_id)
     memory_id = store_memory(
         student_id=payload.student_id,
         memory_text=payload.memory_text,
@@ -263,7 +278,11 @@ def create_memory(payload: MemoryCreateRequest):
 
 
 @router.delete("/memories/{memory_id}")
-def remove_memory(memory_id: str):
+def remove_memory(memory_id: str, user: AuthUser = Depends(require_student)):
+    owner = get_memory_student_id(memory_id)
+    if owner is None:
+        raise HTTPException(status_code=404, detail="Memory not found")
+    assert_student_access(user, owner)
     if not delete_memory(memory_id):
         raise HTTPException(status_code=404, detail="Memory not found")
     return {"ok": True}
@@ -273,13 +292,20 @@ def remove_memory(memory_id: str):
 def latest_simulation(
     simulation_type: Literal["growth", "job"],
     student_id: str = Query(..., description="Student id"),
+    user: AuthUser = Depends(require_student),
 ):
-    return get_latest_simulation(student_id=student_id, simulation_type=simulation_type)
+    assert_student_access(user, student_id)
+    aggregate = get_latest_simulation(student_id=student_id, simulation_type=simulation_type)
+    if aggregate is None:
+        raise HTTPException(status_code=404, detail="暂无模拟记录")
+    return aggregate
 
 
 @router.get("/history", response_model=SimulationHistoryResponse)
 def simulation_history(
     student_id: str = Query(..., description="Student id"),
     limit: int = Query(default=20, ge=1, le=100),
+    user: AuthUser = Depends(require_student),
 ):
+    assert_student_access(user, student_id)
     return get_simulation_history(student_id=student_id, limit=limit)

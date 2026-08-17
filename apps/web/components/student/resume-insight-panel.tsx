@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { GlassCard } from "@/components/neo/glass-card";
 import { cn } from "@/lib/utils";
+import { useStudentSession } from "@/components/student/student-session-provider";
 
 type ResumeTab = "input" | "analysis" | "optimize";
 
@@ -25,6 +26,7 @@ const tabs: { key: ResumeTab; label: string }[] = [
 ];
 
 export function ResumeInsightPanel({ snapshot, embedded = false }: { snapshot?: ResumeSnapshot; embedded?: boolean }) {
+  const { studentId } = useStudentSession();
   const [resumeName, setResumeName] = useState(snapshot?.resumeName ?? "我的简历.pdf");
   const [targetJob, setTargetJob] = useState(snapshot?.targetJob ?? "产品运营专员");
   const [resumeText, setResumeText] = useState("");
@@ -80,7 +82,7 @@ export function ResumeInsightPanel({ snapshot, embedded = false }: { snapshot?: 
           { label: "提取文本", ms: 1000 },
           { label: "回填内容", ms: 500 },
         ],
-        () => extractStudentResumeFromFile({ studentId: "stu_001", file }),
+        () => extractStudentResumeFromFile({ studentId: studentId, file }),
       );
       setResumeText(extracted.extractedText);
       setHint(`已提取 ${extracted.charCount} 字（${extracted.fileType.toUpperCase()}）`);
@@ -124,7 +126,7 @@ export function ResumeInsightPanel({ snapshot, embedded = false }: { snapshot?: 
       };
 
       const result = await optimizeResumeWithAgent({
-        studentId: "stu_001",
+        studentId: studentId,
         originalResume: resumeText,
         targetJob,
         iterations: 3,
@@ -162,7 +164,7 @@ export function ResumeInsightPanel({ snapshot, embedded = false }: { snapshot?: 
         ],
         () =>
           analyzeStudentResume({
-            studentId: "stu_001",
+            studentId: studentId,
             resumeName,
             resumeText,
             targetJob,

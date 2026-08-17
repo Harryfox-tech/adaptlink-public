@@ -7,7 +7,7 @@ from app.schemas.simulations import EpisodeEnding
 
 
 class SimulationAutoRunRequest(BaseModel):
-    student_id: str = "stu_001"
+    student_id: str
     resume_content: str
     target_job: str
     simulation_type: Literal["growth", "job"] = "job"
@@ -35,7 +35,7 @@ class ResumeOptimizeIteration(BaseModel):
 
 
 class ResumeOptimizeRequest(BaseModel):
-    student_id: str = "stu_001"
+    student_id: str
     original_resume: str
     target_job: str
     iterations: int = Field(default=3, ge=1, le=8)

@@ -22,14 +22,22 @@ import {
   SimulationResult,
 } from "@/lib/types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000/api/v1";
+const API_BASE_SERVER = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000/api/v1";
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+function resolveApiBase() {
+  if (typeof window !== "undefined") {
+    return "/api/v1";
+  }
+  return API_BASE_SERVER;
+}
+
+async function request<T>(path: string, init?: RequestInit, token?: string | null): Promise<T> {
   const isFormData = typeof FormData !== "undefined" && init?.body instanceof FormData;
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await fetch(`${resolveApiBase()}${path}`, {
     ...init,
     headers: {
       ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers ?? {}),
     },
     cache: "no-store",
@@ -43,13 +51,26 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 async function authedRequest<T>(path: string, token: string | null, init?: RequestInit): Promise<T> {
-  return await request<T>(path, {
-    ...init,
-    headers: {
-      ...(init?.headers ?? {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  return await request<T>(path, init, token);
+}
+
+function emptyStudentDashboard(studentId: string): StudentDashboardData {
+  return {
+    studentId,
+    metrics: [
+      { title: "综合能力得分", value: "—", delta: "—", hint: "完成模拟后生成" },
+      { title: "模拟训练次数", value: "0", delta: "0", hint: "尚未开始训练" },
+      { title: "岗位匹配中位分", value: "—", delta: "—", hint: "完成求职模拟后更新" },
+      { title: "本周行动项", value: "0", delta: "0", hint: "从模拟建议自动生成" },
+    ],
+    todaySuggestions: [
+      "开始一次成长模拟，建立能力基线",
+      "在求职模拟中完成一轮高压追问训练",
+      "上传简历并生成首份匹配分析",
+    ],
+    riskSummary: "暂无模拟数据。完成成长或求职模拟后，系统将生成个性化诊断与行动建议。",
+    resumeSnapshot: undefined,
+  };
 }
 
 type ApiAbilityDimension = {
@@ -584,27 +605,51 @@ function mapApplicationPackage(item: ApiApplicationPackage): ApplicationPackage 
   };
 }
 
-export async function getGrowthSimulationResult(studentId: string): Promise<SimulationResult> {
-  const aggregate = await request<ApiSimulationAggregate>(`/simulations/growth/latest?student_id=${studentId}`);
-  return mapAggregateToSimulationResult(aggregate);
+export async function getGrowthSimulationResult(studentId: string, token?: string | null): Promise<SimulationResult | null> {
+  try {
+    const aggregate = await request<ApiSimulationAggregate>(
+      `/simulations/growth/latest?student_id=${studentId}`,
+      undefined,
+      token ?? null,
+    );
+    return mapAggregateToSimulationResult(aggregate);
+  } catch {
+    return null;
+  }
 }
 
-export async function getJobSimulationResult(studentId: string): Promise<SimulationResult> {
-  const aggregate = await request<ApiSimulationAggregate>(`/simulations/job/latest?student_id=${studentId}`);
-  return mapAggregateToSimulationResult(aggregate);
+export async function getJobSimulationResult(studentId: string, token?: string | null): Promise<SimulationResult | null> {
+  try {
+    const aggregate = await request<ApiSimulationAggregate>(
+      `/simulations/job/latest?student_id=${studentId}`,
+      undefined,
+      token ?? null,
+    );
+    return mapAggregateToSimulationResult(aggregate);
+  } catch {
+    return null;
+  }
 }
 
-export async function getJobRecommendations(studentId: string) {
-  const response = await request<ApiRecommendationResponse>(`/recommendations/jobs?student_id=${studentId}`);
-  return {
-    items: response.items.map((job) => ({
-      jobId: job.job_id,
-      title: job.title,
-      company: job.company,
-      matchScore: job.match_score,
-      reasons: job.reasons,
-    })),
-  };
+export async function getJobRecommendations(studentId: string, token?: string | null) {
+  try {
+    const response = await request<ApiRecommendationResponse>(
+      `/recommendations/jobs?student_id=${studentId}`,
+      undefined,
+      token ?? null,
+    );
+    return {
+      items: response.items.map((job) => ({
+        jobId: job.job_id,
+        title: job.title,
+        company: job.company,
+        matchScore: job.match_score,
+        reasons: job.reasons,
+      })),
+    };
+  } catch {
+    return { items: [] as { jobId: string; title: string; company: string; matchScore: number; reasons: string[] }[] };
+  }
 }
 
 export async function runSimulation(input: {
@@ -842,9 +887,13 @@ export async function getSchoolStudentSummaries(filters?: {
   }));
 }
 
-export async function getStudentDashboard(studentId: string): Promise<StudentDashboardData> {
+export async function getStudentDashboard(studentId: string, token?: string | null): Promise<StudentDashboardData> {
   try {
-    const response = await request<ApiStudentDashboardResponse>(`/students/${studentId}/dashboard`);
+    const response = await request<ApiStudentDashboardResponse>(
+      `/students/${studentId}/dashboard`,
+      undefined,
+      token ?? null,
+    );
     return {
       studentId: response.student_id,
       metrics: response.metrics,
@@ -861,28 +910,17 @@ export async function getStudentDashboard(studentId: string): Promise<StudentDas
         : undefined,
     };
   } catch {
-    return {
-      studentId,
-      metrics: [
-        { title: "综合能力得分", value: "84.6", delta: "+3.4", hint: "最近2周提升明显" },
-        { title: "模拟训练次数", value: "27", delta: "+5", hint: "成长模拟 14 / 求职模拟 13" },
-        { title: "岗位匹配中位分", value: "78", delta: "+6", hint: "偏向产品运营岗" },
-        { title: "本周行动项", value: "4", delta: "-1", hint: "建议完成 3 项必做训练" },
-      ],
-      todaySuggestions: [
-        "完成一次压力面试模拟",
-        "更新项目经历 STAR 描述",
-        "复盘最近一次团队协作事件",
-      ],
-      riskSummary: "抗压能力与逻辑分析能力波动较大，建议在求职模拟器中开启高压追问场景训练。",
-      resumeSnapshot: undefined,
-    };
+    return emptyStudentDashboard(studentId);
   }
 }
 
-export async function getStudentApplications(studentId: string): Promise<StudentApplication[]> {
+export async function getStudentApplications(studentId: string, token?: string | null): Promise<StudentApplication[]> {
   try {
-    const response = await request<ApiStudentApplicationsResponse>(`/students/${studentId}/applications`);
+    const response = await request<ApiStudentApplicationsResponse>(
+      `/students/${studentId}/applications`,
+      undefined,
+      token ?? null,
+    );
     return response.items.map((item) => ({
       id: item.id,
       jobId: item.job_id ?? undefined,
@@ -897,17 +935,17 @@ export async function getStudentApplications(studentId: string): Promise<Student
       hasAssessment: item.has_assessment,
     }));
   } catch {
-    return [
-      { id: "A-1001", job: "产品运营专员", company: "星澜科技", status: "已投递", date: "2026-03-12" },
-      { id: "A-1002", job: "校园市场培训生", company: "映河教育", status: "面试中", date: "2026-03-16" },
-      { id: "A-1003", job: "数据运营助理", company: "云策数据", status: "待反馈", date: "2026-03-18" },
-    ];
+    return [];
   }
 }
 
-export async function getSimulationHistory(studentId: string): Promise<SimulationHistoryItem[]> {
+export async function getSimulationHistory(studentId: string, token?: string | null): Promise<SimulationHistoryItem[]> {
   try {
-    const response = await request<ApiSimulationHistoryResponse>(`/simulations/history?student_id=${studentId}&limit=30`);
+    const response = await request<ApiSimulationHistoryResponse>(
+      `/simulations/history?student_id=${studentId}&limit=30`,
+      undefined,
+      token ?? null,
+    );
     return response.items.map((item) => ({
       sessionId: item.session_id,
       simulationType: item.simulation_type,
@@ -921,9 +959,13 @@ export async function getSimulationHistory(studentId: string): Promise<Simulatio
   }
 }
 
-export async function getStudentAbilityTrend(studentId: string): Promise<AbilityTrendSeries[]> {
+export async function getStudentAbilityTrend(studentId: string, token?: string | null): Promise<AbilityTrendSeries[]> {
   try {
-    const response = await request<ApiAbilityTrendResponse>(`/students/${studentId}/ability-trend`);
+    const response = await request<ApiAbilityTrendResponse>(
+      `/students/${studentId}/ability-trend`,
+      undefined,
+      token ?? null,
+    );
     return response.series.map((item) => ({
       abilityKey: item.ability_key,
       abilityLabel: item.ability_label,

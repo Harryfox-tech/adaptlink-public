@@ -1,8 +1,13 @@
-﻿import * as React from "react";
-import { RoleShell } from "@/components/layout/role-shell";
+﻿import { RoleShell } from "@/components/layout/role-shell";
+import { StudentSessionProvider } from "@/components/student/student-session-provider";
+import { requireStudentSession } from "@/lib/auth-server";
 
-export default function StudentLayout({ children }: { children: React.ReactNode }) {
-  return <RoleShell role="student">{children}</RoleShell>;
+export default async function StudentLayout({ children }: { children: React.ReactNode }) {
+  const { studentId } = await requireStudentSession();
+
+  return (
+    <StudentSessionProvider studentId={studentId}>
+      <RoleShell role="student">{children}</RoleShell>
+    </StudentSessionProvider>
+  );
 }
-
-

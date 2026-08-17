@@ -1,9 +1,11 @@
 import { getSimulationHistory } from "@/lib/api/client";
+import { requireStudentSession } from "@/lib/auth-server";
 import { SimulationHistoryTabs } from "@/components/simulator/simulation-history-tabs";
 import { Badge } from "@/components/ui/badge";
 
 export default async function StudentSimulationHistoryPage() {
-  const history = await getSimulationHistory("stu_001");
+  const { studentId, token } = await requireStudentSession();
+  const history = await getSimulationHistory(studentId, token);
 
   return (
     <div className="space-y-4">
@@ -16,7 +18,7 @@ export default async function StudentSimulationHistoryPage() {
           <Badge>Agent 轨迹</Badge>
         </div>
       </section>
-      <SimulationHistoryTabs history={history} studentId="stu_001" />
+      <SimulationHistoryTabs history={history} studentId={studentId} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { AUTH_COOKIE_NAME } from "@/lib/auth-client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,6 +19,11 @@ async function proxy(request: NextRequest, params: { path: string[] }) {
   const headers = new Headers(request.headers);
   headers.set("host", new URL(BACKEND_BASE).host);
   headers.delete("content-length");
+
+  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
 
   const body = ["GET", "HEAD"].includes(request.method) ? undefined : await request.arrayBuffer();
 

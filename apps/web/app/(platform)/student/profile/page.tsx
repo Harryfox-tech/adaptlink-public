@@ -1,15 +1,47 @@
 import { getGrowthSimulationResult, getStudentAbilityTrend } from "@/lib/api/client";
+import { requireStudentSession } from "@/lib/auth-server";
 import { ProfileHero } from "@/components/profile/profile-hero";
 import { AbilityRadarPlaceholder } from "@/components/charts/ability-radar-placeholder";
 import { AbilityScoreCards } from "@/components/charts/ability-score-cards";
 import { AbilityTrendChart } from "@/components/charts/ability-trend-chart";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { QuantumWordCloud } from "@/components/profile/quantum-word-cloud";
+import { Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default async function StudentProfilePage() {
-  const result = await getGrowthSimulationResult("stu_001");
-  const trendSeries = await getStudentAbilityTrend("stu_001");
+  const { studentId, token } = await requireStudentSession();
+  const result = await getGrowthSimulationResult(studentId, token);
+  const trendSeries = await getStudentAbilityTrend(studentId, token);
+
+  if (!result) {
+    return (
+      <div className="space-y-4">
+        <section className="mb-6 space-y-3 border-b border-white/10 pb-6">
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-white md:text-4xl">成长档案</h1>
+          <p className="max-w-2xl text-sm text-white/55 md:text-base">完成模拟训练后，系统会在这里生成你的能力画像与趋势。</p>
+        </section>
+        <EmptyState
+          icon={<Sparkles className="h-5 w-5" />}
+          title="还没有成长档案数据"
+          description="新账号需要先完成至少一次成长或求职模拟，能力雷达、趋势图与记忆标签才会出现。"
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button asChild size="sm">
+                <Link href="/student/simulators/growth">开始成长模拟</Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href="/student/simulators/job">开始求职模拟</Link>
+              </Button>
+            </div>
+          }
+        />
+      </div>
+    );
+  }
 
   const strong = result.abilityScores.filter((item) => item.score >= 75).map((item) => item.label);
   const improve = result.abilityScores.filter((item) => item.score < 65).map((item) => item.label);

@@ -201,6 +201,24 @@ def delete_memory(memory_id: str) -> bool:
         return False
 
 
+def get_memory_student_id(memory_id: str) -> str | None:
+    conninfo = get_psycopg_conninfo()
+    if not conninfo:
+        return None
+    try:
+        with psycopg.connect(conninfo) as conn:
+            _ensure_tables(conn)
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT student_id FROM app_student_life_memories WHERE memory_id = %s",
+                    (memory_id,),
+                )
+                row = cur.fetchone()
+                return str(row[0]) if row else None
+    except Exception:
+        return None
+
+
 def _build_transcript(episode: SimulationEpisode) -> str:
     lines = [f"目标: {episode.target}", f"类型: {episode.simulation_type}"]
     for turn in episode.turns:

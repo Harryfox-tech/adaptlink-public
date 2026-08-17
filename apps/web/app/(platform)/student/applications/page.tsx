@@ -1,4 +1,5 @@
 import { getStudentApplications } from "@/lib/api/client";
+import { requireStudentSession } from "@/lib/auth-server";
 import { Badge } from "@/components/ui/badge";
 import { ApplicationStudio } from "@/components/student/application-studio";
 import { NeoCanvas } from "@/components/neo/neo-canvas";
@@ -13,7 +14,8 @@ export default async function StudentApplicationsPage({
     match?: string;
   }>;
 }) {
-  const applications = await getStudentApplications("stu_001");
+  const { studentId, token } = await requireStudentSession();
+  const applications = await getStudentApplications(studentId, token);
   const resolved = (await searchParams) ?? {};
 
   const selectedJob = resolved.jobId

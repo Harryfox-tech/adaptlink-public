@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { GlassCard } from "@/components/neo/glass-card";
+import { useStudentSession } from "@/components/student/student-session-provider";
 
 type SelectedJob = {
   jobId: string;
@@ -72,6 +73,7 @@ export function ApplicationStudio({
   initialItems: StudentApplication[];
   selectedJob?: SelectedJob;
 }) {
+  const { studentId } = useStudentSession();
   const [jobId, setJobId] = useState(selectedJob?.jobId ?? "job_custom_001");
   const [jobTitle, setJobTitle] = useState(selectedJob?.jobTitle ?? "产品运营专员");
   const [company, setCompany] = useState(selectedJob?.company ?? "星澜科技");
@@ -178,7 +180,7 @@ export function ApplicationStudio({
           { label: "提取可读文本", durationMs: 1000 },
           { label: "回填简历内容", durationMs: 500 },
         ],
-        () => extractStudentResumeFromFile({ studentId: "stu_001", file }),
+        () => extractStudentResumeFromFile({ studentId: studentId, file }),
       );
       setResumeText(extracted.extractedText);
       setHint(`已提取 ${extracted.charCount} 字（${extracted.fileType.toUpperCase()}）`);
@@ -210,7 +212,7 @@ export function ApplicationStudio({
           { label: "匹配岗位关键词", durationMs: 1000 },
           { label: "生成 HR 建议", durationMs: 1100 },
         ],
-        () => analyzeStudentResume({ studentId: "stu_001", resumeName, resumeText, targetJob }),
+        () => analyzeStudentResume({ studentId: studentId, resumeName, resumeText, targetJob }),
       );
       setAnalysis(result);
     } catch (e) {
@@ -262,7 +264,7 @@ export function ApplicationStudio({
           { label: "生成角色发问", durationMs: 1200 },
           { label: "初始化评分看板", durationMs: 800 },
         ],
-        () => startSimulationEpisode({ studentId: "stu_001", simulationType: "job", target }),
+        () => startSimulationEpisode({ studentId: studentId, simulationType: "job", target }),
       );
       setEpisode(created);
       setAnswerInput("");
@@ -357,7 +359,7 @@ export function ApplicationStudio({
         ],
         () =>
           submitStudentApplication({
-            studentId: "stu_001",
+            studentId: studentId,
             jobId,
             jobTitle,
             company,

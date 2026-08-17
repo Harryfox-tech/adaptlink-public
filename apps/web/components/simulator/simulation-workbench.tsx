@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useStudentSession } from "@/components/student/student-session-provider";
 
 type ProgressMeta = {
   active: boolean;
@@ -41,6 +42,7 @@ export function SimulationWorkbench({
   defaultAnswer: string;
   defaultTargetJob?: string;
 }) {
+  const { studentId } = useStudentSession();
   const [scene, setScene] = useState(defaultScene);
   const [answer, setAnswer] = useState(defaultAnswer);
   const [targetJob, setTargetJob] = useState(defaultTargetJob ?? "");
@@ -74,7 +76,7 @@ export function SimulationWorkbench({
     if (!answer.trim()) return;
     const next = await withProgress(() =>
       runSimulation({
-        studentId: "stu_001",
+        studentId,
         simulationType,
         scene,
         answer,

@@ -1,9 +1,11 @@
 import { getJobRecommendations } from "@/lib/api/client";
+import { requireStudentSession } from "@/lib/auth-server";
 import { Badge } from "@/components/ui/badge";
 import { JobRecommendationList } from "@/components/simulator/job-recommendation-list";
 
 export default async function StudentRecommendationsPage() {
-  const recommendations = await getJobRecommendations("stu_001");
+  const { studentId, token } = await requireStudentSession();
+  const recommendations = await getJobRecommendations(studentId, token);
 
   return (
     <div className="space-y-4">

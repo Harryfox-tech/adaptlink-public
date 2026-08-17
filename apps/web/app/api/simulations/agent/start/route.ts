@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { runAgentStart } from "@/lib/simulation-agent/orchestrator";
 import { agentErrorResponse } from "@/lib/simulation-agent/route-utils";
+import { assertStudentApiAccess } from "@/lib/assert-student-api";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -19,6 +20,9 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+
+    const denied = await assertStudentApiAccess(body.studentId);
+    if (denied) return denied;
 
     const result = await runAgentStart({
       studentId: body.studentId,

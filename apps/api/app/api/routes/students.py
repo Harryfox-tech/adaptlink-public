@@ -1,6 +1,8 @@
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 
+from app.api.deps.student_auth import assert_student_access, require_student
+from app.schemas.auth import AuthUser
 from app.schemas.resume_optimizer import ResumeOptimizeRequest, ResumeOptimizeResponse
 from app.schemas.students import (
     ApplicationSubmitRequest,
@@ -37,27 +39,32 @@ router = APIRouter()
 
 
 @router.get("/{student_id}/overview", response_model=StudentOverviewResponse)
-def student_overview(student_id: str):
+def student_overview(student_id: str, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     return get_student_overview(student_id)
 
 
 @router.get("/{student_id}/dashboard", response_model=StudentDashboardResponse)
-def student_dashboard(student_id: str):
+def student_dashboard(student_id: str, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     return get_student_dashboard(student_id)
 
 
 @router.get("/{student_id}/applications", response_model=StudentApplicationsResponse)
-def student_applications(student_id: str):
+def student_applications(student_id: str, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     return get_student_applications(student_id)
 
 
 @router.get("/{student_id}/ability-trend", response_model=StudentAbilityTrendResponse)
-def student_ability_trend(student_id: str):
+def student_ability_trend(student_id: str, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     return get_student_ability_trend(student_id)
 
 
 @router.post("/{student_id}/resume-analysis", response_model=ResumeAnalysisResponse)
-def student_resume_analysis(student_id: str, payload: ResumeAnalysisRequest):
+def student_resume_analysis(student_id: str, payload: ResumeAnalysisRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     return analyze_resume(student_id=student_id, payload=payload)
 
 
@@ -68,7 +75,8 @@ def _resume_optimizer_use_langgraph() -> bool:
 
 
 @router.post("/{student_id}/resume-optimize", response_model=ResumeOptimizeResponse)
-def student_resume_optimize(student_id: str, payload: ResumeOptimizeRequest):
+def student_resume_optimize(student_id: str, payload: ResumeOptimizeRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     body = payload.model_copy(update={"student_id": student_id})
     if _resume_optimizer_use_langgraph():
         return optimize_resume_with_agent(body)
@@ -76,7 +84,8 @@ def student_resume_optimize(student_id: str, payload: ResumeOptimizeRequest):
 
 
 @router.post("/{student_id}/resume-optimize/stream")
-def student_resume_optimize_stream(student_id: str, payload: ResumeOptimizeRequest):
+def student_resume_optimize_stream(student_id: str, payload: ResumeOptimizeRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     body = payload.model_copy(update={"student_id": student_id})
     return StreamingResponse(
         optimize_resume_agent_stream(body),
@@ -86,8 +95,8 @@ def student_resume_optimize_stream(student_id: str, payload: ResumeOptimizeReque
 
 
 @router.post("/{student_id}/resume-extract", response_model=ResumeExtractResponse)
-async def student_resume_extract(student_id: str, file: UploadFile = File(...)):
-    _ = student_id
+async def student_resume_extract(student_id: str, file: UploadFile = File(...), user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     file_bytes = await file.read()
     try:
         return extract_resume_text(file_name=file.filename or "resume", file_bytes=file_bytes, content_type=file.content_type)
@@ -96,17 +105,20 @@ async def student_resume_extract(student_id: str, file: UploadFile = File(...)):
 
 
 @router.post("/{student_id}/assessment/generate", response_model=AssessmentGenerateResponse)
-def student_assessment_generate(student_id: str, payload: AssessmentGenerateRequest):
+def student_assessment_generate(student_id: str, payload: AssessmentGenerateRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     return generate_assessment(student_id=student_id, payload=payload)
 
 
 @router.post("/{student_id}/assessment/submit", response_model=AssessmentResult)
-def student_assessment_submit(student_id: str, payload: AssessmentSubmitRequest):
+def student_assessment_submit(student_id: str, payload: AssessmentSubmitRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     return submit_assessment(student_id=student_id, payload=payload)
 
 
 @router.post("/{student_id}/applications/submit", response_model=ApplicationSubmitResponse)
-def student_application_submit(student_id: str, payload: ApplicationSubmitRequest):
+def student_application_submit(student_id: str, payload: ApplicationSubmitRequest, user: AuthUser = Depends(require_student)):
+    assert_student_access(user, student_id)
     try:
         return submit_application(student_id=student_id, payload=payload)
     except ValueError as exc:

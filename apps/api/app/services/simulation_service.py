@@ -144,17 +144,8 @@ def run_simulation_and_persist(payload: SimulationStartRequest) -> tuple[Simulat
     return aggregate, engine, fallback_reason
 
 
-def get_latest_simulation(student_id: str, simulation_type: Literal["growth", "job"]) -> SimulationAggregate:
-    persisted = simulation_persistence_service.get_latest_simulation(student_id=student_id, simulation_type=simulation_type)
-    if persisted is not None:
-        return persisted
-
-    request = SimulationStartRequest(
-        student_id=student_id,
-        simulation_type=simulation_type,
-        scene="latest_snapshot",
-    )
-    return run_mock_simulation_workflow(request)
+def get_latest_simulation(student_id: str, simulation_type: Literal["growth", "job"]) -> SimulationAggregate | None:
+    return simulation_persistence_service.get_latest_simulation(student_id=student_id, simulation_type=simulation_type)
 
 
 def get_simulation_history(student_id: str, limit: int = 20) -> SimulationHistoryResponse:

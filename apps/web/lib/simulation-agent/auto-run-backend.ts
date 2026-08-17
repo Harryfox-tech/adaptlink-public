@@ -6,17 +6,23 @@ function apiBase(): string {
   ).replace(/\/$/, "");
 }
 
-export async function proxyBackendAutoRunStream(input: {
-  studentId: string;
-  resumeContent: string;
-  targetJob: string;
-  simulationType: "growth" | "job";
-  playerStrategy: "conservative" | "aggressive" | "random";
-  maxTurns: number;
-}): Promise<Response> {
+export async function proxyBackendAutoRunStream(
+  input: {
+    studentId: string;
+    resumeContent: string;
+    targetJob: string;
+    simulationType: "growth" | "job";
+    playerStrategy: "conservative" | "aggressive" | "random";
+    maxTurns: number;
+  },
+  token?: string | null,
+): Promise<Response> {
   return fetch(`${apiBase()}/simulations/auto-run/stream`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({
       student_id: input.studentId,
       resume_content: input.resumeContent,
