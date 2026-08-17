@@ -1,5 +1,5 @@
 # push 到 main 时自动构建并推送到 GitHub Container Registry (ghcr.io)
-# Sealos 应用部署里填镜像名即可，无需在 Sealos 选 GitHub。
+# 使用原生 docker 命令，避免 actions 市场下载被 429 限流。
 
 name: Publish Docker images (Sealos)
 
@@ -24,24 +24,18 @@ jobs:
       - name: Set image owner (lowercase)
         run: echo "OWNER_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
-      - uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login "$REGISTRY" -u "${{ github.actor }}" --password-stdin
 
-      - uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: apps/api/Dockerfile
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/adaptlink-api:latest
-            ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/adaptlink-api:${{ github.sha }}
+      - name: Build and push API image
+        run: |
+          IMAGE="${REGISTRY}/${OWNER_LC}/adaptlink-api"
+          docker build -f apps/api/Dockerfile -t "${IMAGE}:latest" -t "${IMAGE}:${{ github.sha }}" .
+          docker push "${IMAGE}:latest"
+          docker push "${IMAGE}:${{ github.sha }}"
 
   build-web:
     runs-on: ubuntu-latest
-    needs: build-api
     steps:
       - uses: actions/checkout@v4
 
@@ -56,19 +50,14 @@ jobs:
             echo "NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8080/api/v1" >> "$GITHUB_ENV"
           fi
 
-      - uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login "$REGISTRY" -u "${{ github.actor }}" --password-stdin
 
-      - uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: apps/web/Dockerfile
-          push: true
-          build-args: |
-            NEXT_PUBLIC_API_BASE_URL=${{ env.NEXT_PUBLIC_API_BASE_URL }}
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/adaptlink-web:latest
-            ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/adaptlink-web:${{ github.sha }}
+      - name: Build and push Web image
+        run: |
+          IMAGE="${REGISTRY}/${OWNER_LC}/adaptlink-web"
+          docker build -f apps/web/Dockerfile \
+            --build-arg "NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}" \
+            -t "${IMAGE}:latest" -t "${IMAGE}:${{ github.sha }}" .
+          docker push "${IMAGE}:latest"
+          docker push "${IMAGE}:${{ github.sha }}"
