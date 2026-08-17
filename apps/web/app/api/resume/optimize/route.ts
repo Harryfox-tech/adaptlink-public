@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { runResumeOptimizerAgent } from "@/lib/resume-optimizer-agent/orchestrator";
 import { proxyBackendResumeStream, useBackendResumeAgent } from "@/lib/resume-optimizer-agent/backend-orchestrator";
+import { assertStudentApiAccess, getStudentApiSession } from "@/lib/assert-student-api";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -62,8 +63,13 @@ export async function POST(request: Request) {
       scoreTarget: body.scoreTarget,
     };
 
+    const denied = await assertStudentApiAccess(body.studentId);
+    if (denied) return denied;
+
+    const session = await getStudentApiSession();
+
     if (useBackendResumeAgent() && body.stream !== false) {
-      const backendRes = await proxyBackendResumeStream(input);
+      const backendRes = await proxyBackendResumeStream(input, session?.token);
       if (!backendRes.ok) {
         const err = (await backendRes.json().catch(() => ({}))) as { detail?: string };
         return NextResponse.json({ error: err.detail ?? "Backend resume stream failed" }, { status: 500 });
@@ -81,7 +87,7 @@ export async function POST(request: Request) {
       return NextResponse.json(result);
     }
 
-    const result = await runResumeOptimizerAgent(input);
+    const result = await runResumeOptimizerAgent(input, session?.token);
     return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json(

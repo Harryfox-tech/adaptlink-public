@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { runAgentAct } from "@/lib/simulation-agent/orchestrator";
 import { agentErrorResponse } from "@/lib/simulation-agent/route-utils";
+import { requireStudentApiSession } from "@/lib/assert-student-api";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -19,10 +20,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await runAgentAct({
-      episodeId: body.episodeId,
-      choice: body.choice.trim(),
-    });
+    const session = await requireStudentApiSession();
+    if (session instanceof NextResponse) return session;
+
+    const result = await runAgentAct(
+      {
+        episodeId: body.episodeId,
+        choice: body.choice.trim(),
+      },
+      undefined,
+      session.token,
+    );
 
     return NextResponse.json(result);
   } catch (e) {

@@ -3,9 +3,12 @@ import { runBackendResumeOptimizer, useBackendResumeAgent } from "./backend-orch
 import { createOptimizerState } from "./state";
 import { runResumeOptimizerReAct } from "./react-loop";
 
-export async function runResumeOptimizerAgent(input: ResumeOptimizeInput): Promise<ResumeOptimizeResult> {
+export async function runResumeOptimizerAgent(
+  input: ResumeOptimizeInput,
+  token?: string | null,
+): Promise<ResumeOptimizeResult> {
   if (useBackendResumeAgent()) {
-    return runBackendResumeOptimizer(input);
+    return runBackendResumeOptimizer(input, token);
   }
 
   const state = createOptimizerState(input);

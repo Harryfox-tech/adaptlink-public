@@ -5,6 +5,7 @@ import {
   useBackendLangGraphAgent,
 } from "@/lib/simulation-agent/backend-orchestrator";
 import { createAgentSseStream, sseResponse } from "@/lib/simulation-agent/sse";
+import { assertStudentApiAccess, getStudentApiSession } from "@/lib/assert-student-api";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -30,8 +31,13 @@ export async function POST(request: Request) {
       target: body.target.trim(),
     };
 
+    const denied = await assertStudentApiAccess(body.studentId);
+    if (denied) return denied;
+
+    const session = await getStudentApiSession();
+
     if (useBackendLangGraphAgent()) {
-      const backendRes = await proxyBackendAgentStartStream(input);
+      const backendRes = await proxyBackendAgentStartStream(input, session?.token);
       if (!backendRes.ok || !backendRes.body) {
         const err = (await backendRes.json().catch(() => ({}))) as { detail?: string };
         return Response.json(
@@ -51,7 +57,7 @@ export async function POST(request: Request) {
     const stream = createAgentSseStream(async (emit) => {
       const result = await runAgentStart(input, {
         onTraceLine: (line) => emit({ type: "trace", line }),
-      });
+      }, session?.token);
       emit({ type: "result", data: result });
     });
 

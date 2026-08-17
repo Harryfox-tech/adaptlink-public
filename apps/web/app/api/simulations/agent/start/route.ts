@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { runAgentStart } from "@/lib/simulation-agent/orchestrator";
 import { agentErrorResponse } from "@/lib/simulation-agent/route-utils";
-import { assertStudentApiAccess } from "@/lib/assert-student-api";
+import { assertStudentApiAccess, getStudentApiSession } from "@/lib/assert-student-api";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -24,11 +24,16 @@ export async function POST(request: Request) {
     const denied = await assertStudentApiAccess(body.studentId);
     if (denied) return denied;
 
-    const result = await runAgentStart({
-      studentId: body.studentId,
-      simulationType: body.simulationType,
-      target: body.target.trim(),
-    });
+    const session = await getStudentApiSession();
+    const result = await runAgentStart(
+      {
+        studentId: body.studentId,
+        simulationType: body.simulationType,
+        target: body.target.trim(),
+      },
+      undefined,
+      session?.token,
+    );
 
     return NextResponse.json(result);
   } catch (e) {

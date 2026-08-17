@@ -61,10 +61,11 @@ export type AgentRunCallbacks = {
 export async function runAgentStart(
   input: AgentStartInput,
   callbacks?: AgentRunCallbacks,
+  token?: string | null,
 ): Promise<AgentStepResult> {
   if (useBackendLangGraphAgent()) {
     try {
-      return await runBackendAgentStart(input);
+      return await runBackendAgentStart(input, token);
     } catch (e) {
       throw new AgentError(
         e instanceof Error ? e.message : "Backend LangGraph start failed",
@@ -103,10 +104,11 @@ export async function runAgentStart(
 export async function runAgentAct(
   input: AgentActInput,
   callbacks?: AgentRunCallbacks,
+  token?: string | null,
 ): Promise<AgentStepResult> {
   if (useBackendLangGraphAgent()) {
     try {
-      return await runBackendAgentAct(input);
+      return await runBackendAgentAct(input, token);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Backend LangGraph act failed";
       const correlationId = newCorrelationId();

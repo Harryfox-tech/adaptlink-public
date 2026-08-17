@@ -5,6 +5,8 @@ import {
   useBackendLangGraphAgent,
 } from "@/lib/simulation-agent/backend-orchestrator";
 import { createAgentSseStream, sseResponse } from "@/lib/simulation-agent/sse";
+import { requireStudentApiSession } from "@/lib/assert-student-api";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -23,11 +25,17 @@ export async function POST(request: Request) {
       );
     }
 
+    const session = await requireStudentApiSession();
+    if (session instanceof NextResponse) return session;
+
     if (useBackendLangGraphAgent()) {
-      const backendRes = await proxyBackendAgentActStream({
-        episodeId: body.episodeId,
-        choice: body.choice.trim(),
-      });
+      const backendRes = await proxyBackendAgentActStream(
+        {
+          episodeId: body.episodeId,
+          choice: body.choice.trim(),
+        },
+        session.token,
+      );
       if (!backendRes.ok || !backendRes.body) {
         const err = (await backendRes.json().catch(() => ({}))) as { detail?: string };
         return Response.json(
@@ -48,6 +56,7 @@ export async function POST(request: Request) {
       const result = await runAgentAct(
         { episodeId: body.episodeId!, choice: body.choice!.trim() },
         { onTraceLine: (line) => emit({ type: "trace", line }) },
+        session.token,
       );
       emit({ type: "result", data: result });
     });

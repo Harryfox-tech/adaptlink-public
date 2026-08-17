@@ -12,10 +12,17 @@ export function useBackendResumeAgent(): boolean {
   return (process.env.RESUME_OPTIMIZER_ENGINE ?? "langgraph").toLowerCase() !== "next";
 }
 
-export async function runBackendResumeOptimizer(input: ResumeOptimizeInput): Promise<ResumeOptimizeResult> {
+function authHeaders(token?: string | null): Record<string, string> {
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+export async function runBackendResumeOptimizer(input: ResumeOptimizeInput, token?: string | null): Promise<ResumeOptimizeResult> {
   const res = await fetch(`${apiBase()}/students/${encodeURIComponent(input.studentId)}/resume-optimize`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(token),
     body: JSON.stringify({
       student_id: input.studentId,
       original_resume: input.originalResume,
@@ -66,10 +73,10 @@ export async function runBackendResumeOptimizer(input: ResumeOptimizeInput): Pro
   };
 }
 
-export async function proxyBackendResumeStream(input: ResumeOptimizeInput): Promise<Response> {
+export async function proxyBackendResumeStream(input: ResumeOptimizeInput, token?: string | null): Promise<Response> {
   return fetch(`${apiBase()}/students/${encodeURIComponent(input.studentId)}/resume-optimize/stream`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(token),
     body: JSON.stringify({
       student_id: input.studentId,
       original_resume: input.originalResume,

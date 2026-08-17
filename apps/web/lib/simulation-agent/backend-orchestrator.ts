@@ -22,10 +22,17 @@ export function useBackendLangGraphAgent(): boolean {
   return engine !== "next";
 }
 
-export async function runBackendAgentStart(input: AgentStartInput): Promise<AgentStepResult> {
+function authHeaders(token?: string | null): Record<string, string> {
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+export async function runBackendAgentStart(input: AgentStartInput, token?: string | null): Promise<AgentStepResult> {
   const res = await fetch(`${apiBase()}/simulations/agent/start`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(token),
     body: JSON.stringify({
       student_id: input.studentId,
       simulation_type: input.simulationType,
@@ -40,10 +47,10 @@ export async function runBackendAgentStart(input: AgentStartInput): Promise<Agen
   return (await res.json()) as BackendAgentResult;
 }
 
-export async function runBackendAgentAct(input: AgentActInput): Promise<AgentStepResult> {
+export async function runBackendAgentAct(input: AgentActInput, token?: string | null): Promise<AgentStepResult> {
   const res = await fetch(`${apiBase()}/simulations/agent/act`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(token),
     body: JSON.stringify({
       episode_id: input.episodeId,
       choice: input.choice,
@@ -57,14 +64,17 @@ export async function runBackendAgentAct(input: AgentActInput): Promise<AgentSte
   return (await res.json()) as BackendAgentResult;
 }
 
-export async function proxyBackendAgentStartStream(body: {
-  studentId: string;
-  simulationType: "growth" | "job";
-  target: string;
-}): Promise<Response> {
+export async function proxyBackendAgentStartStream(
+  body: {
+    studentId: string;
+    simulationType: "growth" | "job";
+    target: string;
+  },
+  token?: string | null,
+): Promise<Response> {
   const res = await fetch(`${apiBase()}/simulations/agent/start/stream`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(token),
     body: JSON.stringify({
       student_id: body.studentId,
       simulation_type: body.simulationType,
@@ -75,13 +85,16 @@ export async function proxyBackendAgentStartStream(body: {
   return res;
 }
 
-export async function proxyBackendAgentActStream(body: {
-  episodeId: string;
-  choice: string;
-}): Promise<Response> {
+export async function proxyBackendAgentActStream(
+  body: {
+    episodeId: string;
+    choice: string;
+  },
+  token?: string | null,
+): Promise<Response> {
   const res = await fetch(`${apiBase()}/simulations/agent/act/stream`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(token),
     body: JSON.stringify({
       episode_id: body.episodeId,
       choice: body.choice,
